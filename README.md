@@ -10,8 +10,8 @@ Projekt systemu do zarządzania książkami, listami czytelniczymi i recenzjami.
 - lista "do przeczytania"
 
 ## Architektura
-- Auth Service
-- Book Service
+- Auth Service (FastAPI)
+- Book Service (FastAPI)
 - PostgreSQL
 
 ## Technologie
@@ -21,3 +21,6 @@ Projekt systemu do zarządzania książkami, listami czytelniczymi i recenzjami.
 
 ## Status
 Projekt w fazie projektowania.
+
+## Git workflow
+Projekt korzysta z branchy: main → develop → feature/*
