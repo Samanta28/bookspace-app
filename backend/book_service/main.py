@@ -2,7 +2,7 @@ from database import SessionLocal
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import jwt
-from models import Book
+from models import Book, Review
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -18,6 +18,12 @@ class BookRequest(BaseModel):
     author: str
 
 
+class ReviewRequest(BaseModel):
+    content: str
+    rating: int
+    book_id: int
+
+
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
         token = credentials.credentials
@@ -31,6 +37,9 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
 @app.get("/")
 def root():
     return {"message": "Book Service running"}
+
+
+# ---------------- BOOKS ----------------
 
 
 @app.get("/books")
@@ -69,29 +78,3 @@ def delete_book(id: int, user: str = Depends(get_current_user)):
     db.commit()
 
     return {"message": "Deleted"}
-
-    @app.get("/books/{id}")
-def get_book(id: int):
-    db = SessionLocal()
-    book = db.query(Book).filter(Book.id == id).first()
-
-    if not book:
-        raise HTTPException(status_code=404, detail="Not found")
-
-    return book
-
-    @app.put("/books/{id}")
-def update_book(id: int, book: BookRequest, user: str = Depends(get_current_user)):
-    db = SessionLocal()
-
-    db_book = db.query(Book).filter(Book.id == id, Book.user_id == user).first()
-
-    if not db_book:
-        raise HTTPException(status_code=404, detail="Not found")
-
-    db_book.title = book.title
-    db_book.author = book.author
-
-    db.commit()
-
-    return {"message": "Updated"}
