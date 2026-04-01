@@ -25,3 +25,5 @@ class Review(Base):
 
 
 Base.metadata.create_all(bind=engine)
+
+
