@@ -49,6 +49,17 @@ def get_books(user: str = Depends(get_current_user)):
     return books
 
 
+@app.get("/books/{id}")
+def get_book(id: int):
+    db = SessionLocal()
+    book = db.query(Book).filter(Book.id == id).first()
+
+    if not book:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    return book
+
+
 @app.post("/books")
 def add_book(book: BookRequest, user: str = Depends(get_current_user)):
     db = SessionLocal()
@@ -65,6 +76,23 @@ def add_book(book: BookRequest, user: str = Depends(get_current_user)):
     return {"message": "Book added"}
 
 
+@app.put("/books/{id}")
+def update_book(id: int, book: BookRequest, user: str = Depends(get_current_user)):
+    db = SessionLocal()
+
+    db_book = db.query(Book).filter(Book.id == id, Book.user_id == user).first()
+
+    if not db_book:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    db_book.title = book.title
+    db_book.author = book.author
+
+    db.commit()
+
+    return {"message": "Updated"}
+
+
 @app.delete("/books/{id}")
 def delete_book(id: int, user: str = Depends(get_current_user)):
     db = SessionLocal()
@@ -75,6 +103,67 @@ def delete_book(id: int, user: str = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="Not found")
 
     db.delete(book)
+    db.commit()
+
+    return {"message": "Deleted"}
+
+
+# ---------------- REVIEWS ----------------
+
+
+@app.post("/reviews")
+def add_review(review: ReviewRequest, user: str = Depends(get_current_user)):
+    db = SessionLocal()
+
+    new_review = Review(
+        content=review.content,
+        rating=review.rating,
+        book_id=review.book_id,
+        user_id=user,
+    )
+
+    db.add(new_review)
+    db.commit()
+
+    return {"message": "Review added"}
+
+
+@app.get("/reviews/book/{id}")
+def get_reviews(id: int):
+    db = SessionLocal()
+    reviews = db.query(Review).filter(Review.book_id == id).all()
+    return reviews
+
+
+@app.put("/reviews/{id}")
+def update_review(
+    id: int, review: ReviewRequest, user: str = Depends(get_current_user)
+):
+    db = SessionLocal()
+
+    db_review = db.query(Review).filter(Review.id == id, Review.user_id == user).first()
+
+    if not db_review:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    db_review.content = review.content
+    db_review.rating = review.rating
+
+    db.commit()
+
+    return {"message": "Updated"}
+
+
+@app.delete("/reviews/{id}")
+def delete_review(id: int, user: str = Depends(get_current_user)):
+    db = SessionLocal()
+
+    review = db.query(Review).filter(Review.id == id, Review.user_id == user).first()
+
+    if not review:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    db.delete(review)
     db.commit()
 
     return {"message": "Deleted"}
