@@ -51,3 +51,5 @@ def login(user: UserRequest):
     token = jwt.encode({"sub": user.username}, SECRET_KEY, algorithm=ALGORITHM)
 
     return {"access_token": token}
+    
+# database connected
