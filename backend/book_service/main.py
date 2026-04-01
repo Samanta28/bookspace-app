@@ -1,15 +1,31 @@
 from database import SessionLocal
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jose import jwt
 from models import Book
 from pydantic import BaseModel
 
 app = FastAPI()
 
+SECRET_KEY = "secret"
+ALGORITHM = "HS256"
+
+security = HTTPBearer()
+
 
 class BookRequest(BaseModel):
     title: str
     author: str
-    user_id: str
+
+
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        token = credentials.credentials
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username = payload.get("sub")
+        return username
+    except:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
 
 @app.get("/")
@@ -18,20 +34,20 @@ def root():
 
 
 @app.get("/books")
-def get_books():
+def get_books(user: str = Depends(get_current_user)):
     db = SessionLocal()
-    books = db.query(Book).all()
+    books = db.query(Book).filter(Book.user_id == user).all()
     return books
 
 
 @app.post("/books")
-def add_book(book: BookRequest):
+def add_book(book: BookRequest, user: str = Depends(get_current_user)):
     db = SessionLocal()
 
     new_book = Book(
         title=book.title,
         author=book.author,
-        user_id=book.user_id,
+        user_id=user,
     )
 
     db.add(new_book)
@@ -41,12 +57,13 @@ def add_book(book: BookRequest):
 
 
 @app.delete("/books/{id}")
-def delete_book(id: int):
+def delete_book(id: int, user: str = Depends(get_current_user)):
     db = SessionLocal()
 
-    book = db.query(Book).filter(Book.id == id).first()
+    book = db.query(Book).filter(Book.id == id, Book.user_id == user).first()
+
     if not book:
-        return {"error": "Not found"}
+        raise HTTPException(status_code=404, detail="Not found")
 
     db.delete(book)
     db.commit()
