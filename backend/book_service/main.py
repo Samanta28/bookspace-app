@@ -69,3 +69,29 @@ def delete_book(id: int, user: str = Depends(get_current_user)):
     db.commit()
 
     return {"message": "Deleted"}
+
+    @app.get("/books/{id}")
+def get_book(id: int):
+    db = SessionLocal()
+    book = db.query(Book).filter(Book.id == id).first()
+
+    if not book:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    return book
+
+    @app.put("/books/{id}")
+def update_book(id: int, book: BookRequest, user: str = Depends(get_current_user)):
+    db = SessionLocal()
+
+    db_book = db.query(Book).filter(Book.id == id, Book.user_id == user).first()
+
+    if not db_book:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    db_book.title = book.title
+    db_book.author = book.author
+
+    db.commit()
+
+    return {"message": "Updated"}
