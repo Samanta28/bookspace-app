@@ -1,6 +1,6 @@
+from database import engine
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import declarative_base
-from database import engine
 
 Base = declarative_base()
 
@@ -25,5 +25,3 @@ class Review(Base):
 
 
 Base.metadata.create_all(bind=engine)
-
-
