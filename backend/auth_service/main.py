@@ -51,5 +51,7 @@ def login(user: UserRequest):
     token = jwt.encode({"sub": user.username}, SECRET_KEY, algorithm=ALGORITHM)
 
     return {"access_token": token}
-    
-# database connected
+   
+   @app.get("/db-test")
+def db_test():
+    return {"status": "database connected"}
