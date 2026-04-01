@@ -1,7 +1,9 @@
+from database import SessionLocal
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
 from jose import jwt
+from models import User
 from passlib.context import CryptContext
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -12,30 +14,44 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 fake_db = {}
 
-class User(BaseModel):
+
+class UserRequest(BaseModel):
     username: str
     password: str
 
+
 @app.post("/auth/register")
-def register(user: User):
-    if user.username in fake_db:
+def register(user: UserRequest):
+    db = SessionLocal()
+
+    existing_user = db.query(User).filter(User.username == user.username).first()
+    if existing_user:
         raise HTTPException(status_code=400, detail="User exists")
-    
+
     hashed_password = pwd_context.hash(user.password)
-    fake_db[user.username] = hashed_password
-    
+
+    new_user = User(username=user.username, password=hashed_password)
+    db.add(new_user)
+    db.commit()
+
     return {"message": "User registered"}
 
+
 @app.post("/auth/login")
-def login(user: User):
-    if user.username not in fake_db:
+def login(user: UserRequest):
+    db = SessionLocal()
+
+    db_user = db.query(User).filter(User.username == user.username).first()
+    if not db_user:
         raise HTTPException(status_code=400, detail="User not found")
-    
-    hashed_password = fake_db[user.username]
-    
-    if not pwd_context.verify(user.password, hashed_password):
+
+    if not pwd_context.verify(user.password, db_user.password):
         raise HTTPException(status_code=400, detail="Wrong password")
-    
+
     token = jwt.encode({"sub": user.username}, SECRET_KEY, algorithm=ALGORITHM)
-    
+
     return {"access_token": token}
+   
+   @app.get("/db-test")
+def db_test():
+    return {"status": "database connected"}
