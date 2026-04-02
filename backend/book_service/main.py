@@ -191,7 +191,22 @@ def add_to_reading_list(book_id: int, user: str = Depends(get_current_user)):
     return {"message": "Added to reading list"}
 
 
-    @app.delete("/reading-list/{id}")
+@app.post("/reading-list")
+def add_to_reading_list(book_id: int, user: str = Depends(get_current_user)):
+    db = SessionLocal()
+
+    item = ReadingList(
+        book_id=book_id,
+        user_id=user
+    )
+
+    db.add(item)
+    db.commit()
+
+    return {"message": "Added to reading list"}
+
+
+@app.delete("/reading-list/{id}")
 def delete_from_reading_list(id: int, user: str = Depends(get_current_user)):
     db = SessionLocal()
 
