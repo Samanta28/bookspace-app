@@ -24,4 +24,12 @@ class Review(Base):
     user_id = Column(String)
 
 
+class ReadingList(Base):
+    __tablename__ = "reading_list"
+
+    id = Column(Integer, primary_key=True, index=True)
+    book_id = Column(Integer)
+    user_id = Column(String)
+
+
 Base.metadata.create_all(bind=engine)
