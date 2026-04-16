@@ -69,7 +69,7 @@ Komunikacja odbywa się przez REST API.
 
 ---
 
-## 📡 API
+## API
 
 Dokumentacja API dostępna jest automatycznie po uruchomieniu aplikacji:
 
@@ -79,7 +79,7 @@ http://localhost:8000/docs
 
 ---
 
-## ▶️ Uruchomienie projektu
+## Uruchomienie projektu
 
 1. Sklonuj repozytorium:
 
