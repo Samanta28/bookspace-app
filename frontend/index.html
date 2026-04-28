@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>BookSpace</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #f5f6fa;
+    transition: 0.3s;
+}
+
+/* DARK MODE */
+.dark {
+    background: #121417;
+    color: #f1f2f6;
+}
+
+.dark nav {
+    background: #1e2227;
+}
+
+.dark .book {
+    background: #2f3640;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+}
+
+.dark .card {
+    background: #2f3640;
+}
+
+.dark input {
+    background: #2f3640;
+    color: white;
+    border: 1px solid #555;
+}
+
+.dark .menu a {
+    color: #f1f2f6;
+}
+
+.dark .menu a:hover {
+    color: #a29bfe;
+}
+
+.dark .search-box input {
+    background: #2f3640;
+    border: 1px solid #444;
+    color: white;
+}
+
+.dark .hero {
+    background: linear-gradient(135deg, #2d3436, #636e72);
+}
+
+
+/*  NAVBAR */
+nav {
+    display: flex;
+    align-items: center;
+    padding: 15px 40px;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.logo {
+    font-size: 30px;
+    font-weight: 700;
+    background: linear-gradient(45deg, #6c5ce7, #00cec9);
+    -webkit-background-clip: text;
+    color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.menu {
+    display: flex;
+    gap: 25px;
+    margin-left: 20px;
+}
+
+.menu a {
+    text-decoration: none;
+    color: #2d3436;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: 0.25s;
+    font-weight: 500;
+    position: relative;
+}
+
+.menu a:hover {
+    color: #6c5ce7;
+    transform: translateY(-1px);
+}
+
+.menu a::after {
+    content: "";
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0%;
+    height: 2px;
+    background: #6c5ce7;
+    transition: 0.3s;
+}
+
+.menu a:hover::after {
+    width: 100%;
+}
+
+.nav-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    padding: 10px;
+    min-width: 180px;
+    z-index: 20;
+
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    transition: 0.25s ease;
+}
+
+.dropdown-content.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.dropdown-content span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+.dropdown-content span:hover {
+    background: #f1f2f6;
+}
+
+.dropdown-content i {
+    width: 18px;
+    text-align: center;
+    color: #6c5ce7;
+    font-size: 14px;
+}
+
+/* hover open */
+.dropdown-content span.active {
+    background: #6c5ce7;
+    color: white;
+}
+
+/* dark mode */
+.dark .dropdown-content {
+    background: #2f3640;
+}
+
+.dark .dropdown-content span:hover {
+    background: #3d3d3d;
+} 
+
+/*  SEARCH */
+.search-box {
+    position: relative;
+}
+
+.search-box input {
+    width: 300px;
+    padding: 10px 12px 10px 38px;
+    border-radius: 25px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: #6c5ce7;
+}
+
+.search-box i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: gray;
+}
+
+/*  AUTH  */
+.auth {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+/*  TOAST  */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #2d3436;
+    color: white;
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: 0.3s;
+    z-index: 2000;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* SUCCESS */
+.toast.success {
+    background: linear-gradient(45deg, #00b894, #00cec9);
+}
+
+/* ERROR */
+.toast.error {
+    background: linear-gradient(45deg, #d63031, #ff7675);
+}
+
+/* LINK STYLE (Login/Sign up/ Dark mode) */
+.link-btn {
+    color: #6c5ce7;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.2s;
+    position: relative;
+}
+
+.link-btn:hover {
+    color: #4834d4;
+}
+
+.link-btn::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    width: 0%;
+    height: 2px;
+    background: #6c5ce7;
+    transition: 0.3s;
+}
+
+.link-btn:hover::after {
+    width: 100%;
+}
+
+.text-btn {
+    background: none;
+    border: none;
+    color: #6c5ce7;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.back-btn {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    color: #6c5ce7;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: 0.2s;
+}
+
+.back-btn:hover {
+    color: #4834d4;
+}
+
+/* SECTIONS */
+.section {
+    display: none;
+    padding: 40px;
+}
+
+.section.active {
+    display: block;
+}
+
+/*HERO */
+.hero {
+    padding: 80px;
+    background: linear-gradient(135deg, #6c5ce7, #00cec9);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: "";
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    top: -100px;
+    right: -100px;
+}
+
+.hero::after {
+    content: "";
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    bottom: -80px;
+    left: -80px;
+}
+
+.text-btn:hover {
+    color: #4834d4;
+}
+
+/*  BOOKS */
+.books {
+    display: flex;
+    gap: 20px;
+    padding-top: 20px;
+    flex-wrap: wrap;
+}
+
+.book {
+    position: relative;
+    background: white;
+    width: 180px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    transition: 0.4s;
+    cursor: pointer;
+}
+
+.book:hover {
+    transform: translateY(-6px);
+}
+
+.book img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    transition: 0.4s;
+}
+
+.rating {
+    color: gold;
+}
+
+.book:hover img {
+    transform: scale(1.08);
+}
+.book::after {
+    content: "View details";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0%;
+    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    color: white;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 10px;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.book:hover::after {
+    height: 50%;
+}
+
+/*CARDS */
+.center-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+}
+
+.card {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    width: 350px;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.card input {
+    width: 90%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+}
+
+.card button {
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(45deg, #6c5ce7, #00cec9);
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.card button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.6s ease forwards;
+}
+
+@keyframes fadeUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.skeleton {
+    width: 180px;
+    height: 250px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #eee, #ddd, #eee);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* MODAL */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    width: 650px;
+    border-radius: 15px;
+    padding: 25px;
+    position: relative;
+    animation: fadeUp 0.3s ease;
+}
+
+.modal-body {
+    display: flex;
+    gap: 20px;
+}
+
+.modal-body img {
+    width: 220px;
+    border-radius: 10px;
+}
+
+.modal-info {
+    text-align: left;
+}
+
+.modal-info h2 {
+    margin-top: 0;
+}
+
+.modal-info button {
+    margin-top: 15px;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(45deg, #6c5ce7, #00cec9);
+    color: white;
+    cursor: pointer;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+/* DARK MODE */
+.dark .modal-content {
+    background: #2f3640;
+}
+
+</style>
+</head>
+
+<body>
+
+<nav>
+<div class="nav-left">  
+    <div class="logo">
+    <i class="fa-solid fa-book-open"></i> BookSpace
+</div>
+
+    <div class="menu">
+    <a onclick="show('home')"><i class="fa-solid fa-house"></i> Home</a>
+    <a onclick="show('mybooks')"><i class="fa-solid fa-book"></i> My Books</a>
+    <a onclick="show('highest')"><i class="fa-solid fa-star"></i> Highest Rated</a>
+    <a onclick="show('new')"><i class="fa-solid fa-fire"></i> New</a>
+    <div class="dropdown">
+    <a href="#" onclick="toggleDropdown(event)">
+    <i class="fa-solid fa-layer-group"></i> Genre
+</a>
+
+    <div class="dropdown-content" id="genreDropdown">
+
+        <span onclick="filterGenre('Fantasy', this); closeDropdown()">
+    <i class="fa-solid fa-dragon"></i> Fantasy
+</span>
+
+<span onclick="filterGenre('Romance', this); closeDropdown()">
+    <i class="fa-solid fa-heart"></i> Romance
+</span>
+
+<span onclick="filterGenre('Thriller', this); closeDropdown()">
+    <i class="fa-solid fa-skull"></i> Thriller
+</span>
+
+<span onclick="filterGenre('Classic', this); closeDropdown()">
+    <i class="fa-solid fa-book"></i> Classic
+</span>
+
+<span onclick="filterGenre('Self-help', this); closeDropdown()">
+    <i class="fa-solid fa-brain"></i> Self-help
+</span>
+
+<span onclick="filterGenre('Mystery', this); closeDropdown()">
+    <i class="fa-solid fa-user-secret"></i> Mystery
+</span>
+
+<span onclick="filterGenre('Drama', this); closeDropdown()">
+    <i class="fa-solid fa-masks-theater"></i> Drama
+</span>
+
+<span onclick="filterGenre('Historical', this); closeDropdown()">
+    <i class="fa-solid fa-landmark"></i> Historical
+</span>
+
+<span onclick="filterGenre('Young Adult', this); closeDropdown()">
+    <i class="fa-solid fa-graduation-cap"></i> Young Adult
+</span>
+
+<span onclick="filterGenre('Sci-Fi', this); closeDropdown()">
+    <i class="fa-solid fa-rocket"></i> Sci-Fi
+</span>
+
+<hr>
+
+<span onclick="filterGenre('All', this); closeDropdown()">
+    <i class="fa-solid fa-layer-group"></i> All
+</span>
+
+    </div>
+</div>
+
+</div>
+
+<div class="nav-right">
+    <div class="search-box">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input id="searchInput" placeholder="Search books..." onkeyup="searchBooks()">
+</div>
+
+    <div class="auth">
+    <span class="link-btn" onclick="toggleDark()">🌙 Dark Mode</span>
+    <span class="link-btn" onclick="show('login')">Login</span>
+    <span class="link-btn" onclick="show('signup')">Sign Up</span>
+</div>
+</div>
+
+</nav>
+
+<!-- HOME -->
+<div id="home" class="section active">
+
+<div class="hero">
+    <h1>Find your next adventure</h1>
+    <p>Discover amazing books and track your reading</p>
+</div>
+
+<h2>Trending Books! TOP 20🔥</h2>
+
+<div class="books">
+
+<div class="book searchable fade-in"
+data-genre="Fantasy"
+onclick="openModal(this)">
+<img src="https://www.adazing.com/wp-content/uploads/2023/06/the-hobbit-75th-anniversary-edition-1365x2048.jpg">
+<h4>The Hobbit</h4>
+<p>J.R.R. Tolkien</p>
+<p>1937</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.7</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Self-help"
+onclick="openModal(this)">
+<img src="https://tse2.mm.bing.net/th/id/OIP.8OBj3zwUeZAwpvWyoht2gQHaLL?r=0&rs=1&pid=ImgDetMain&o=7&rm=3">
+<h4>Atomic Habits</h4>
+<p>James Clear</p>
+<p>2018</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.8</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Fantasy"
+onclick="openModal(this)">
+<img src="https://contentful.harrypotter.com/usf1vwtuqyxm/2DCs73x6P8seNobQ9zBSbO/1a5dfd6ed5fc0ed9545370470fc3d74c/English_Harry_Potter_1_Epub_9781781100219.jpg">
+<h4>Harry Potter</h4>
+<p>J.K. Rowling</p>
+<p>1997</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.8</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Fantasy"
+onclick="openModal(this)">
+<img src="https://tse1.mm.bing.net/th/id/OIP._Z09kGkAdrMKJsz-Zu4LJwHaKj?r=0&rs=1&pid=ImgDetMain&o=7&rm=3">
+<h4>The Alchemist</h4>
+<p>Paulo Coelho</p>
+<p>1988</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.6</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Romance"
+onclick="openModal(this)">
+<img src="https://tse1.mm.bing.net/th/id/OIP.MnRbJxKbLwqWRQhuBB2gOAHaLM?r=0&rs=1&pid=ImgDetMain&o=7&rm=3">
+<h4>The Midnight Library</h4>
+<p>Matt Haig</p>
+<p>2020</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.6</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Young Adult"
+onclick="openModal(this)">
+<img src="https://cdn.swiatksiazki.pl/media/catalog/product/3/3/3399907026833.jpg?width=370&height=370&store=default&image-type=small_image">
+<h4>Extinguish the Heat Runda Piąta</h4>
+<p>P.S. Herytiera [Pizgacz]</p>
+<p>2023</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.6</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Thriller"
+onclick="openModal(this)">
+<img src="https://tse2.mm.bing.net/th/id/OIP.ExW4bO7MheuFLwlZFSXalQHaLQ?r=0&rs=1&pid=ImgDetMain&o=7&rm=3">
+<h4>MR Mercedes</h4>
+<p>Stephen King</p>
+<p>2014</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.7</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Romance"
+onclick="openModal(this)">
+<img src="https://tse4.mm.bing.net/th/id/OIP.Xc1XYL63RDJqa_hDW50DFAHaLL?r=0&rs=1&pid=ImgDetMain&o=7&rm=3">
+<h4>Romeo and Juliet</h4>
+<p>William Shakespeare</p>
+<p>1590</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.8</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Young Adult"
+onclick="openModal(this)">
+<img src="https://m.media-amazon.com/images/I/81O-cSGFB5L._SL1500_.jpg">
+<h4>Keeping 13</h4>
+<p>Chloe Walsh</p>
+<p>2018</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.6</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Fantasy"
+onclick="openModal(this)">
+<img src="https://tse2.mm.bing.net/th/id/OIP.ZITZrfWzWGZKtDJ4luKVBwHaLZ?r=0&rs=1&pid=ImgDetMain&o=7&rm=3">
+<h4>A Court of Thorns and Roses</h4>
+<p>Sarah J. Maas</p>
+<p>2015</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.9</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Fantasy"
+onclick="openModal(this)">
+<img src="https://tse2.mm.bing.net/th/id/OIP.0RSIhedBzjgzcxErEWSwTgAAAA?r=0&rs=1&pid=ImgDetMain&o=7&rm=3">
+<h4>Fourth Wing</h4>
+<p>Rebecca Yarros</p>
+<p>2023</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.6</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Mystery"
+onclick="openModal(this)">
+<img src="https://tse4.mm.bing.net/th/id/OIP.3wBboGPJdqDU1DfKn44-dQHaLP?r=0&rs=1&pid=ImgDetMain&o=7&rm=3">
+<h4>Behawiorysta</h4>
+<p>Remigiusz Mróz</p>
+<p>2016</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.6</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Romance"
+onclick="openModal(this)">
+<img src="https://m.media-amazon.com/images/I/61dU08giPmL._SL1360_.jpg">
+<h4>Pride and Prejudice</h4>
+<p>Jane Austen</p>
+<p>1813</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.5</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Classic"
+onclick="openModal(this)">
+<img src="https://allaboutdanbrown.com/wp-content/uploads/2024/07/Divine-comedy.jpg">
+<h4>The Divine Comedy</h4>
+<p>Dante</p>
+<p>1308</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.8</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Mystery"
+onclick="openModal(this)">
+<img src="https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1774686324i/238365535.jpg">
+<h4>Dear Debbie</h4>
+<p>Freida McFadden</p>
+<p>2026</p>
+<p class="rating">⭐⭐⭐⭐⭐ 3.98</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Classic"
+onclick="openModal(this)">
+<img src="https://cdn2.penguin.com.au/covers/original/9780553213522.jpg">
+<h4>The Idiot</h4>
+<p>Fyodor Dostoevsky</p>
+<p>1869</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.6</p>
+</div>
+</div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<!-- HIGHEST RATED -->
+<div id="highest" class="section">
+<h1>⭐ Highest Rated Books! TOP 10🔥</h1>
+
+<div class="books">
+
+<div class="book searchable fade-in"
+data-genre="Fantasy"
+onclick="openModal(this)">
+<img src="https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1728768241i/17332218.jpg">
+<h4>#1 Words of Radiance (The Stormlight Archive, #2)</h4>
+<p>Brandon Sanderson</p>
+<p>2014</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.76</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Fantasy"
+onclick="openModal(this)">
+<img src="https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1663805647i/136251.jpg">
+<h4>#2 Harry Potter and the Deathly Hallows</h4>
+<p>J.K. Rowling</p>
+<p>2007</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.62</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Fantasy"
+onclick="openModal(this)">
+<img src="https://tse2.mm.bing.net/th/id/OIP.0RSIhedBzjgzcxErEWSwTgAAAA?r=0&rs=1&pid=ImgDetMain&o=7&rm=3">
+<h4>#3 Fourth Wing</h4>
+<p>Rebecca Yarros</p>
+<p>2023</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.6</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Fantasy"
+onclick="openModal(this)">
+<img src="https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1456172607i/22299763.jpg">
+<h4>#4 Crooked Kingdom (Six of Crows, #2)</h4>
+<p>Leigh Bardugo</p>
+<p>2016</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.58</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Fantasy"
+onclick="openModal(this)">
+<img src="https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1620325671i/50659468.jpg">
+<h4>#5 A Court of Mist and Fury (A Court of Thorns and Roses, #2)</h4>
+<p>Sarah J. Maas</p>
+<p>2016</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.71</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Fantasy"
+onclick="openModal(this)">
+<img src="https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1654216226i/61215384.jpg">
+<h4>#6 The Return of the King</h4>
+<p>J.R.R. Tolkien</p>
+<p>1955</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.58</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Fantasy"
+onclick="openModal(this)">
+<img src="https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1464201430i/12127810.jpg">
+<h4>#7 The House of Hades</h4>
+<p>Rick Riordan</p>
+<p>2013</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.64</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Fantasy"
+onclick="openModal(this)">
+<img src="https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1673567331i/76715522.jpg">
+<h4>#8 Kingdom of Ash</h4>
+<p>Sarah J. Maas</p>
+<p>2018</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.71</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Thriller"
+onclick="openModal(this)">
+<img src="https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1681839850i/21853621.jpg">
+<h4>#9 The Nightingale</h4>
+<p>Kristin Hannah</p>
+<p>2015</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.65</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Sci-Fi"
+onclick="openModal(this)">
+<img src="https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1667655583i/29227774.jpg">
+<h4>#10 Light Bringer</h4>
+<p>Pierce Brown</p>
+<p>2023</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.77</p>
+</div>
+
+</div>
+</div>
+
+<!-- NEW -->
+<div id="new" class="section">
+<h1>New Books (2026)</h1>
+
+<div class="books">
+
+<div class="book searchable fade-in"
+data-genre="Thriller"
+onclick="openModal(this)">
+<img src="https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1774686324i/238365535.jpg">
+<h4>Dear Debbie</h4>
+<p>Freida McFadden</p>
+<p>2026</p>
+<p class="rating">⭐⭐⭐⭐⭐ 3.98</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Thriller"
+onclick="openModal(this)">
+<img src="https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1747668611i/231127462.jpg">
+<h4>My Husband's Wife</h4>
+<p>Alice Feeney</p>
+<p>2026</p>
+<p class="rating">⭐⭐⭐⭐⭐ 3.98</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Romance"
+onclick="openModal(this)">
+<img src="https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1755786976i/231801371.jpg">
+<h4>The Night We Met (Say You'll Remember Me, #2)</h4>
+<p>Abby Jimenez</p>
+<p>2026</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.09</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Fantasy"
+onclick="openModal(this)">
+<img src="https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1753932705i/238226942.jpg">
+<h4>Yesteryear</h4>
+<p>Caro Claire Burke</p>
+<p>2026</p>
+<p class="rating">⭐⭐⭐⭐⭐ 3.17</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Thriller"
+onclick="openModal(this)">
+<img src="https://covers.openlibrary.org/b/id/12955536-L.jpg">
+<h4>Half His Age</h4>
+<p>Jennette McCurdy</p>
+<p>2026</p>
+<p class="rating">⭐⭐⭐⭐⭐ 3.31</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Thriller"
+onclick="openModal(this)">
+<img src="https://covers.openlibrary.org/b/id/12955536-L.jpg">
+<h4>Anatomy of an Alibi</h4>
+<p>Ashley Elston</p>
+<p>2026</p>
+<p class="rating">⭐⭐⭐⭐⭐ 3.82</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Thriller"
+onclick="openModal(this)">
+<img src="https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1751999126i/230443142.jpg">
+<h4>It's Not Her</h4>
+<p>Mary Kubica</p>
+<p>2026</p>
+<p class="rating">⭐⭐⭐⭐⭐ 3.98</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Romance"
+onclick="openModal(this)">
+<img src="https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1757522888i/241458703.jpg">
+<h4>Woman Down</h4>
+<p>Colleen Hoover</p>
+<p>2026</p>
+<p class="rating">⭐⭐⭐⭐⭐ 3.98</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Romance"
+onclick="openModal(this)">
+<img src="https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1763062347i/230926478.jpg">
+<h4>In Her Own League</h4>
+<p>Liz Tomforde</p>
+<p>2026</p>
+<p class="rating">⭐⭐⭐⭐⭐ 4.37</p>
+</div>
+
+<div class="book searchable fade-in"
+data-genre="Thriller"
+onclick="openModal(this)">
+<img src="https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1748929782i/231126887.jpg">
+<h4>This Story Might Save Your Life</h4>
+<p>Tiffany Crum</p>
+<p>2026</p>
+<p class="rating">⭐⭐⭐⭐⭐ 3.99</p>
+</div>
+
+</div>
+</div>
+
+<!-- MY BOOKS -->
+<div id="mybooks" class="section">
+
+<div class="center-container">
+
+<div id="notLogged" class="card">
+    <h1>📚 Your library is waiting</h1>
+    <p>Start building your personal book collection and track what you love ✨</p>
+
+    <button onclick="show('login')">Login</button>
+    <button onclick="show('signup')" class="secondary-btn">Create Account</button>
+</div>
+
+<div id="logged" class="card" style="display:none;">
+    <h1>Your Books</h1>
+
+    <div class="books" style="justify-content:center; flex-wrap:wrap;">
+        <div class="book">
+            <img src="https://covers.openlibrary.org/b/id/8231856-L.jpg">
+            <h4>The Hobbit</h4>
+        </div>
+
+        <div class="book">
+            <img src="https://covers.openlibrary.org/b/id/11153223-L.jpg">
+            <h4>Atomic Habits</h4>
+        </div>
+    </div>
+</div>
+
+</div>
+</div>
+
+<!-- LOGIN -->
+<div id="login" class="section">
+<div class="center-container">
+
+<div class="card">
+
+<span class="back-btn" onclick="show('home')">
+    <i class="fa-solid fa-arrow-left"></i> Back
+</span>
+
+<h2>Welcome back 👋</h2>
+
+<input placeholder="Email or username">
+<input type="password" placeholder="Password">
+
+<button onclick="fakeLogin()">Login</button>
+
+<p style="margin-top:15px; font-size:14px;">
+Forgot password?
+</p>
+
+</div>
+
+</div>
+</div>
+
+<!-- SIGNUP -->
+<div id="signup" class="section">
+<div class="center-container">
+
+<div class="card">
+
+<span class="back-btn" onclick="show('home')">
+    <i class="fa-solid fa-arrow-left"></i> Back
+</span>
+
+<h2>Create account ✨</h2>
+
+<input placeholder="Username">
+<input type="email" placeholder="Email">
+<input type="password" placeholder="Password">
+<input type="password" placeholder="Confirm password">
+
+<button>Sign Up</button>
+
+<p style="margin-top:15px; font-size:14px;">
+Already have an account?
+<span class="link-btn" onclick="show('login')">Login</span>
+</p>
+
+</div>
+
+</div>
+</div>
+
+<div id="bookModal" class="modal">
+  <div class="modal-content">
+
+    <span class="close" onclick="closeModal()">&times;</span>
+
+    <div class="modal-body">
+        <img id="modalImg">
+
+    <div class="modal-info">
+        <h2 id="modalTitle"></h2>
+        <p id="modalAuthor"></p>
+        <p id="modalYear"></p>
+        <p id="modalRating"></p>
+
+        <p id="modalDesc" style="margin-top:10px; font-size:14px; opacity:0.8;"></p>
+
+        <button onclick="addToMyBooks()">+ Add to My Books</button>
+        <button onclick="addReview()" style="margin-top:10px; background:#2d3436;">
+        + Add a review
+    </button>
+</div>
+    </div>
+
+  </div>
+</div>
+
+
+<script>
+
+const descriptions = {
+    "Harry Potter": "A young wizard discovers his magical destiny and attends Hogwarts School of Witchcraft and Wizardry.",
+    "The Hobbit": "Bilbo Baggins embarks on an unexpected journey to reclaim a treasure guarded by a dragon.",
+    "Atomic Habits": "A practical guide to building good habits and breaking bad ones through small, consistent daily improvements.",
+    "The Alchemist": "A young shepherd travels in search of treasure and learns to follow his dreams and listen to his heart.",
+    "The Midnight Library": "A woman discovers a magical library that allows her to explore the lives she could have lived.",
+    "Extinguish the Heat Runda Piąta": "An intense continuation of a dramatic series filled with emotions, relationships, and personal struggles.",
+    "MR Mercedes": "A retired detective is drawn into a deadly game with a mysterious killer who threatens to strike again.",
+    "Romeo and Juliet": "A tragic love story of two young lovers from feuding families whose fate leads to heartbreak.",
+    "Keeping 13": "A heartfelt story about love, trauma, and healing as two young people fight to protect each other.",
+    "A Court of Thorns and Roses": "A young woman is taken to a magical land where she becomes entangled in a dangerous fae world.",
+    "Fourth Wing": "A young woman enters a brutal dragon-riding academy where survival depends on strength, courage, and alliances.",
+    "Behawiorysta": "A brilliant lawyer faces a dangerous criminal who manipulates people’s behavior in a chilling psychological game.",
+    "Pride and Prejudice": "A classic romance exploring love, class, and misunderstandings between Elizabeth Bennet and Mr. Darcy.",
+    "The Divine Comedy": "An epic poetic journey through Hell, Purgatory, and Heaven exploring sin, redemption, and divine justice.",
+    "The Idiot": "A kind and innocent man returns to society, exposing the flaws and corruption of the world around him.",
+    // NEW BOOKS (2026)
+"Dear Debbie": "A gripping psychological thriller about secrets, obsession, and the dark consequences of hidden pasts.",
+"My Husband's Wife": "A suspenseful story of marriage, deception, and the dangerous truths that threaten to unravel everything.",
+"The Night We Met (Say You'll Remember Me, #2)": "A heartfelt romance about second chances, emotional healing, and the power of unforgettable connections.",
+"Yesteryear": "A nostalgic and emotional journey through memory, identity, and the choices that shape our lives.",
+"Half His Age": "A bold and thought-provoking story exploring relationships, age differences, and societal expectations.",
+"Anatomy of an Alibi": "A fast-paced mystery where lies, secrets, and manipulation blur the line between truth and deception.",
+"It's Not Her": "A tense psychological thriller about identity, trust, and the shocking truth behind a dangerous misunderstanding.",
+"Woman Down": "An emotional and dramatic story about resilience, heartbreak, and finding strength after loss.",
+"In Her Own League": "A powerful romance about ambition, independence, and proving your worth in a competitive world.",
+"This Story Might Save Your Life": "An uplifting and emotional story about self-discovery, healing, and finding purpose when everything feels lost.",
+// HIGHEST RATED
+"#1 Words of Radiance (The Stormlight Archive, #2)": "An epic fantasy filled with war, magic, and complex characters fighting for survival and honor.",
+"#2 Harry Potter and the Deathly Hallows": "The final battle between good and evil as Harry faces his destiny and the truth about his past.",
+"#3 Fourth Wing": "A brutal dragon-riding academy where survival depends on strength, courage, and alliances.",
+"#4 Crooked Kingdom (Six of Crows, #2)": "A high-stakes heist story where loyalty, revenge, and strategy collide in a dangerous world.",
+"#5 A Court of Mist and Fury (A Court of Thorns and Roses, #2)": "A darker and more emotional continuation of a fantasy romance filled with power, trauma, and transformation.",
+"#6 The Return of the King": "The epic conclusion of a legendary journey where the fate of Middle-earth is decided.",
+"#7 The House of Hades": "Heroes face their greatest challenges in a mythological world where survival is never guaranteed.",
+"#8 Kingdom of Ash": "An epic finale of sacrifice, war, and destiny in a richly built fantasy universe.",
+"#9 The Nightingale": "A powerful and emotional story of two sisters in Nazi-occupied France, exploring courage, sacrifice, and survival during war.",
+"#10 Light Bringer": "A gripping sci-fi story of rebellion, power, and the fight for freedom in a brutal society."
+};
+
+let isLogged = false;
+
+function show(section) {
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+    document.getElementById(section).classList.add("active");
+
+    if(section === "mybooks"){
+        if(isLogged){
+            document.getElementById("logged").style.display = "block";
+            document.getElementById("notLogged").style.display = "none";
+        } else {
+            document.getElementById("logged").style.display = "none";
+            document.getElementById("notLogged").style.display = "block";
+        }
+    }
+}
+
+function searchBooks(){
+    let input = document.getElementById("searchInput").value.toLowerCase();
+    let books = document.querySelectorAll(".searchable");
+
+    books.forEach(book => {
+        let text = book.innerText.toLowerCase();
+
+        if(text.includes(input)){
+            book.style.display = "";
+        } else {
+            book.style.display = "none";
+        }
+    });
+}
+
+function toggleDark(){
+    document.body.classList.toggle("dark");
+}
+
+function fakeLogin(){
+    isLogged = true;
+    alert("Logged in!");
+}
+
+function openModal(book){
+    let img = book.querySelector("img").src;
+    let title = book.querySelector("h4").innerText;
+    let paragraphs = book.querySelectorAll("p");
+
+    document.getElementById("modalImg").src = img;
+    document.getElementById("modalTitle").innerText = title;
+
+    document.getElementById("modalAuthor").innerText = paragraphs[0]?.innerText || "";
+    document.getElementById("modalYear").innerText = paragraphs[1]?.innerText || "";
+    document.getElementById("modalRating").innerText = paragraphs[2]?.innerText || "";
+
+
+    document.getElementById("modalDesc").innerText =
+        descriptions[title] || "No description available.";
+
+    document.getElementById("bookModal").style.display = "flex";
+}
+
+function closeModal(){
+    document.getElementById("bookModal").style.display = "none";
+}
+
+let myBooks = [];
+
+function addToMyBooks(){
+    if(!isLogged){
+        showToast("Login to save books 📚", "error");
+        return;
+    }
+
+    let title = document.getElementById("modalTitle").innerText;
+
+    if(myBooks.includes(title)){
+        showToast("Already in your library", "error");
+        return;
+    }
+
+    myBooks.push(title);
+        showToast("Added to My Books ✅", "success");
+    }
+
+function addReview(){
+    if(!isLogged){
+        showToast("Login to add a review ⭐", "error");
+        return;
+    }
+
+    let review = prompt("Write your review:");
+
+    if(review){
+        showToast("Review added ✨", "success");
+    }
+}
+
+function showToast(message, type = "success"){
+    let toast = document.getElementById("toast");
+
+    toast.innerText = message;
+    toast.className = "toast show " + type;
+
+    setTimeout(() => {
+        toast.className = "toast";
+    }, 2500);
+}
+
+let activeGenre = "All";
+
+function filterGenre(genre){
+    activeGenre = genre;
+
+    let books = document.querySelectorAll(".book");
+
+    books.forEach(book => {
+        let bookGenre = book.getAttribute("data-genre");
+
+        if(genre === "All" || bookGenre === genre){
+            book.style.display = "";
+        } else {
+            book.style.display = "none";
+        }
+    });
+
+    // highlight w dropdown
+    document.querySelectorAll(".dropdown-content span").forEach(e => {
+        e.classList.remove("active");
+    });
+
+    if(el){
+        el.classList.add("active");
+    }
+
+    show("home");
+}
+
+function toggleDropdown(event){
+    event.preventDefault(); 
+    event.stopPropagation(); 
+
+    let dropdown = document.getElementById("genreDropdown");
+    
+    if(!dropdown){
+        console.error("Dropdown not found!");
+        return;
+    }
+
+    dropdown.classList.toggle("show");
+}
+
+function closeDropdown(){
+    document.getElementById("genreDropdown").classList.remove("show");
+}
+
+document.addEventListener("click", function(e){
+    let dropdown = document.getElementById("genreDropdown");
+
+    if(dropdown && !dropdown.contains(e.target)){
+        dropdown.classList.remove("show");
+    }
+});
+
+</script>
+
+</body>
+</html>
