@@ -116,9 +116,7 @@ Projekt był rozwijany zgodnie z zasadami:
 
 ---
 
-## Status projektu
 
-Projekt ukończony – spełnia wszystkie wymagania MVP.
 
 ---
 
