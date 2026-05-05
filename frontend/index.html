@@ -1550,6 +1550,17 @@ function searchBooks(){
     });
 }
 
+document.querySelectorAll(".rating")
+.forEach(rating => {
+
+    let number =
+        rating.innerText.trim();
+
+    rating.innerText =
+        generateStars(number);
+
+});
+
 function toggleDark(){
     document.body.classList.toggle("dark");
 }
@@ -2145,17 +2156,39 @@ function generateStars(rating){
     rating =
         parseFloat(rating);
 
-    let starsCount =
-        Math.round(rating);
+    let fullStars =
+        Math.floor(rating);
+
+    let decimal =
+        rating - fullStars;
+
+    let hasHalf =
+        decimal >= 0.25;
 
     let stars = "";
 
     for(
         let i = 0;
-        i < starsCount;
+        i < fullStars;
         i++
     ){
         stars += "⭐";
+    }
+
+    if(
+        hasHalf
+        &&
+        fullStars < 5
+    ){
+        stars += "⯨";
+        fullStars++;
+    }
+
+    while(
+        fullStars < 5
+    ){
+        stars += "✩";
+        fullStars++;
     }
 
     return stars + " " + rating;
@@ -2216,6 +2249,8 @@ document.addEventListener("DOMContentLoaded", function(){
     );
 
 });
+
+
 
 const heroCovers = [
 
