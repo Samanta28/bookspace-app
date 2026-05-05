@@ -4,8 +4,17 @@ from jose import jwt
 from models import User
 from passlib.context import CryptContext
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5500"],  
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 SECRET_KEY = "secret"
 ALGORITHM = "HS256"
@@ -51,7 +60,7 @@ def login(user: UserRequest):
     token = jwt.encode({"sub": user.username}, SECRET_KEY, algorithm=ALGORITHM)
 
     return {"access_token": token}
-   
-   @app.get("/db-test")
+
+@app.get("/db-test")
 def db_test():
-    return {"status": "database connected"}
+    return {"message": "Database works"}

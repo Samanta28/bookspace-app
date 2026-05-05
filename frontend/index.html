@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <title>BookSpace</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
@@ -62,8 +63,12 @@ body {
 nav {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+
     padding: 15px 40px;
     background: white;
+
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
 }
 
@@ -86,8 +91,12 @@ nav {
 
 .menu {
     display: flex;
-    gap: 25px;
-    margin-left: 20px;
+    align-items: center;
+    gap: 30px;
+
+    margin-left: 30px;
+
+    white-space: nowrap;
 }
 
 .menu a {
@@ -124,9 +133,13 @@ nav {
 
 .nav-right {
     margin-left: auto;
+
     display: flex;
     align-items: center;
-    gap: 20px;
+
+    gap: 25px;
+
+    white-space: nowrap;
 }
 
 .dropdown {
@@ -223,7 +236,10 @@ nav {
 .auth {
     display: flex;
     align-items: center;
-    gap: 18px;
+
+    gap: 20px;
+
+    white-space: nowrap;
 }
 
 /*  TOAST  */
@@ -625,10 +641,32 @@ nav {
     <input id="searchInput" placeholder="Search books..." onkeyup="searchBooks()">
 </div>
 
-    <div class="auth">
-    <span class="link-btn" onclick="toggleDark()">🌙 Dark Mode</span>
-    <span class="link-btn" onclick="show('login')">Login</span>
-    <span class="link-btn" onclick="show('signup')">Sign Up</span>
+   <div class="auth" id="authButtons">
+
+    <span class="link-btn"
+          onclick="toggleDark()">
+        🌙 Dark Mode
+    </span>
+
+    <span id="loginBtn"
+          class="link-btn"
+          onclick="show('login')">
+        Login
+    </span>
+
+    <span id="signupBtn"
+          class="link-btn"
+          onclick="show('signup')">
+        Sign Up
+    </span>
+
+    <span id="logoutBtn"
+          class="link-btn"
+          onclick="logout()"
+          style="display:none;">
+        Logout
+    </span>
+
 </div>
 </div>
 
@@ -1032,34 +1070,34 @@ onclick="openModal(this)">
 <!-- MY BOOKS -->
 <div id="mybooks" class="section">
 
-<div class="center-container">
+    <div class="center-container">
 
-<div id="notLogged" class="card">
-    <h1>📚 Your library is waiting</h1>
-    <p>Start building your personal book collection and track what you love ✨</p>
+        <div id="notLogged" class="card">
 
-    <button onclick="show('login')">Login</button>
-    <button onclick="show('signup')" class="secondary-btn">Create Account</button>
-</div>
+            <h1>📚 Your library is waiting</h1>
+            <p>Start building your personal book collection and track what you love ✨</p>
 
-<div id="logged" class="card" style="display:none;">
-    <h1>Your Books</h1>
+            <button onclick="show('login')">Login</button>
+            <button onclick="show('signup')">Create Account</button>
 
-    <div class="books" style="justify-content:center; flex-wrap:wrap;">
-        <div class="book">
-            <img src="https://covers.openlibrary.org/b/id/8231856-L.jpg">
-            <h4>The Hobbit</h4>
         </div>
 
-        <div class="book">
-            <img src="https://covers.openlibrary.org/b/id/11153223-L.jpg">
-            <h4>Atomic Habits</h4>
+        <div id="logged" class="card" style="display:none; width:700px;">
+
+            <h1>Your Books</h1>
+
+            <div id="myBooksContainer"
+                 class="books"
+                 style="justify-content:center; flex-wrap:wrap;">
+            </div>
+
         </div>
+
     </div>
-</div>
 
 </div>
-</div>
+
+
 
 <!-- LOGIN -->
 <div id="login" class="section">
@@ -1073,10 +1111,10 @@ onclick="openModal(this)">
 
 <h2>Welcome back 👋</h2>
 
-<input placeholder="Email or username">
-<input type="password" placeholder="Password">
+<input id="loginUsername" placeholder="Email or username">
+<input id="loginPassword" type="password" placeholder="Password">
 
-<button onclick="fakeLogin()">Login</button>
+<button onclick="login()">Login</button>
 
 <p style="margin-top:15px; font-size:14px;">
 Forgot password?
@@ -1099,12 +1137,12 @@ Forgot password?
 
 <h2>Create account ✨</h2>
 
-<input placeholder="Username">
-<input type="email" placeholder="Email">
-<input type="password" placeholder="Password">
+<input id="signupUsername" placeholder="Username">
+<input id="signupEmail" type="email" placeholder="Email">
+<input id="signupPassword" type="password" placeholder="Password">
 <input type="password" placeholder="Confirm password">
 
-<button>Sign Up</button>
+<button onclick="register()">Sign Up</button>
 
 <p style="margin-top:15px; font-size:14px;">
 Already have an account?
@@ -1117,33 +1155,82 @@ Already have an account?
 </div>
 
 <div id="bookModal" class="modal">
-  <div class="modal-content">
 
-    <span class="close" onclick="closeModal()">&times;</span>
+    <div class="modal-content">
 
-    <div class="modal-body">
-        <img id="modalImg">
+        <span class="close" onclick="closeModal()">&times;</span>
 
-    <div class="modal-info">
-        <h2 id="modalTitle"></h2>
-        <p id="modalAuthor"></p>
-        <p id="modalYear"></p>
-        <p id="modalRating"></p>
+        <div class="modal-body">
 
-        <p id="modalDesc" style="margin-top:10px; font-size:14px; opacity:0.8;"></p>
+            <img id="modalImg">
 
-        <button onclick="addToMyBooks()">+ Add to My Books</button>
-        <button onclick="addReview()" style="margin-top:10px; background:#2d3436;">
-        + Add a review
-    </button>
-</div>
+            <div class="modal-info">
+
+                <h2 id="modalTitle"></h2>
+
+                <p id="modalAuthor"></p>
+                <p id="modalYear"></p>
+                <p id="modalRating"></p>
+
+                <p id="modalDesc"
+                   style="margin-top:10px; font-size:14px; opacity:0.8;">
+                </p>
+
+                <button onclick="addToMyBooks()">
+                    + Add to My Books
+                </button>
+
+                <button onclick="addReview()"
+                        style="margin-top:10px; background:#2d3436;">
+                    + Add a review
+                </button>
+
+            </div>
+        </div>
+
     </div>
 
-  </div>
 </div>
 
+<div id="reviewModal" class="modal">
+
+    <div class="modal-content">
+
+        <span class="close"
+              onclick="closeReviewModal()">
+            &times;
+        </span>
+
+        <h2>Add Review ⭐</h2>
+
+        <select id="reviewStars">
+
+            <option value="⭐">1 ⭐</option>
+            <option value="⭐⭐">2 ⭐⭐</option>
+            <option value="⭐⭐⭐">3 ⭐⭐⭐</option>
+            <option value="⭐⭐⭐⭐">4 ⭐⭐⭐⭐</option>
+            <option value="⭐⭐⭐⭐⭐">5 ⭐⭐⭐⭐⭐</option>
+
+        </select>
+
+        <br><br>
+
+        <textarea id="reviewText"
+                  rows="5"
+                  style="width:100%; border-radius:10px; padding:10px;"
+                  placeholder="Write your opinion...">
+        </textarea>
+
+        <button onclick="saveReview()">
+            Save Review
+        </button>
+
+    </div>
+
+</div>
 
 <script>
+    console.log("JS loaded");
 
 const descriptions = {
     "Harry Potter": "A young wizard discovers his magical destiny and attends Hogwarts School of Witchcraft and Wizardry.",
@@ -1185,7 +1272,7 @@ const descriptions = {
 "#10 Light Bringer": "A gripping sci-fi story of rebellion, power, and the fight for freedom in a brutal society."
 };
 
-let isLogged = false;
+let isLogged = !!localStorage.getItem("token");
 
 function show(section) {
     document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
@@ -1221,28 +1308,117 @@ function toggleDark(){
     document.body.classList.toggle("dark");
 }
 
-function fakeLogin(){
-    isLogged = true;
-    alert("Logged in!");
+function login(){
+    let username = document.getElementById("loginUsername").value;
+    let password = document.getElementById("loginPassword").value;
+
+    fetch("http://127.0.0.1:8000/auth/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password
+        })
+    })
+    .then(async res => {
+        let data = await res.json();
+
+        if(res.ok){
+            localStorage.setItem("token", data.access_token);
+            isLogged = true;
+            updateAuthUI();
+
+            showToast("Logged in ✅", "success");
+            show("home");
+        } else {
+            showToast(data.detail || "Wrong login ❌", "error");
+        }
+    })
+    .catch(() => {
+        showToast("Server error ❌", "error");
+    });
+}
+
+function register(){
+    let username = document.getElementById("signupUsername").value;
+    let email = document.getElementById("signupEmail").value;
+    let password = document.getElementById("signupPassword").value;
+
+    fetch("http://127.0.0.1:8000/auth/register", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            username: username,
+            email: email,
+            password: password
+        })
+    })
+    .then(async res => {
+        let data = await res.json();
+
+        if(res.ok){
+            showToast("Account created 🎉", "success");
+            show("login");
+        } else {
+            showToast(data.detail || "Registration failed ❌", "error");
+        }
+    })
+    .catch(() => {
+        showToast("Server error ❌", "error");
+    });
 }
 
 function openModal(book){
-    let img = book.querySelector("img").src;
-    let title = book.querySelector("h4").innerText;
+
+    console.log("Book clicked");
+
+    let img = book.querySelector("img");
+    let title = book.querySelector("h4");
     let paragraphs = book.querySelectorAll("p");
 
-    document.getElementById("modalImg").src = img;
-    document.getElementById("modalTitle").innerText = title;
+    if(!img || !title){
+        console.error("Book data missing");
+        return;
+    }
 
-    document.getElementById("modalAuthor").innerText = paragraphs[0]?.innerText || "";
-    document.getElementById("modalYear").innerText = paragraphs[1]?.innerText || "";
-    document.getElementById("modalRating").innerText = paragraphs[2]?.innerText || "";
+    document.getElementById("modalImg").src = img.src;
+    document.getElementById("modalTitle").innerText = title.innerText;
 
+    document.getElementById("modalAuthor").innerText =
+        paragraphs[0] ? paragraphs[0].innerText : "";
+
+    document.getElementById("modalYear").innerText =
+        paragraphs[1] ? paragraphs[1].innerText : "";
+
+    document.getElementById("modalRating").innerText =
+        paragraphs[2] ? paragraphs[2].innerText : "";
 
     document.getElementById("modalDesc").innerText =
-        descriptions[title] || "No description available.";
+        descriptions[title.innerText] || "No description available.";
 
-    document.getElementById("bookModal").style.display = "flex";
+    let modal = document.getElementById("bookModal");
+
+    if(!modal){
+        console.error("Modal not found");
+        return;
+    }
+
+    let review = reviews[title.innerText];
+
+if(review){
+
+    document.getElementById("modalDesc").innerHTML +=
+        "<br><br><b>Your Review:</b><br>"
+        + review.stars
+        + "<br>"
+        + review.text;
+
+}
+    modal.style.display = "flex";
 }
 
 function closeModal(){
@@ -1252,12 +1428,14 @@ function closeModal(){
 let myBooks = [];
 
 function addToMyBooks(){
+
     if(!isLogged){
         showToast("Login to save books 📚", "error");
         return;
     }
 
     let title = document.getElementById("modalTitle").innerText;
+    let img = document.getElementById("modalImg").src;
 
     if(myBooks.includes(title)){
         showToast("Already in your library", "error");
@@ -1265,20 +1443,71 @@ function addToMyBooks(){
     }
 
     myBooks.push(title);
-        showToast("Added to My Books ✅", "success");
-    }
+
+    let container = document.getElementById("myBooksContainer");
+
+    container.innerHTML += `
+    <div class="book"
+         onclick="openModal(this)">
+
+        <img src="${img}">
+
+        <h4>${title}</h4>
+
+        <p>Saved by you</p>
+        <p>-</p>
+        <p class="rating">⭐⭐⭐⭐⭐</p>
+
+    </div>
+`;
+
+    showToast("Added to My Books ✅", "success");
+}
+
+let reviews = {};
+let currentBook = "";
 
 function addReview(){
+
     if(!isLogged){
-        showToast("Login to add a review ⭐", "error");
+
+        showToast("Login first ⭐", "error");
         return;
+
     }
 
-    let review = prompt("Write your review:");
+    currentBook =
+        document.getElementById("modalTitle").innerText;
 
-    if(review){
-        showToast("Review added ✨", "success");
-    }
+    document.getElementById("reviewModal").style.display = "flex";
+
+}
+
+function saveReview(){
+
+    let stars =
+        document.getElementById("reviewStars").value;
+
+    let text =
+        document.getElementById("reviewText").value;
+
+    reviews[currentBook] = {
+
+        stars: stars,
+        text: text
+
+    };
+
+    closeReviewModal();
+
+    showToast("Review added ⭐", "success");
+
+}
+
+function closeReviewModal(){
+
+    document.getElementById("reviewModal").style.display = "none";
+
 }
 
 function showToast(message, type = "success"){
@@ -1294,7 +1523,8 @@ function showToast(message, type = "success"){
 
 let activeGenre = "All";
 
-function filterGenre(genre){
+function filterGenre(genre, el){
+
     activeGenre = genre;
 
     let books = document.querySelectorAll(".book");
@@ -1309,7 +1539,6 @@ function filterGenre(genre){
         }
     });
 
-    // highlight w dropdown
     document.querySelectorAll(".dropdown-content span").forEach(e => {
         e.classList.remove("active");
     });
@@ -1335,6 +1564,41 @@ function toggleDropdown(event){
     dropdown.classList.toggle("show");
 }
 
+function updateAuthUI(){
+
+    if(isLogged){
+
+        document.getElementById("loginBtn").style.display = "none";
+        document.getElementById("signupBtn").style.display = "none";
+
+        document.getElementById("logoutBtn").style.display = "inline";
+
+    }
+    else{
+
+        document.getElementById("loginBtn").style.display = "inline";
+        document.getElementById("signupBtn").style.display = "inline";
+
+        document.getElementById("logoutBtn").style.display = "none";
+
+    }
+
+}
+
+function logout(){
+
+    localStorage.removeItem("token");
+
+    isLogged = false;
+
+    updateAuthUI();
+
+    showToast("Logged out 👋", "success");
+
+    show("home");
+
+}
+
 function closeDropdown(){
     document.getElementById("genreDropdown").classList.remove("show");
 }
@@ -1346,6 +1610,8 @@ document.addEventListener("click", function(e){
         dropdown.classList.remove("show");
     }
 });
+
+updateAuthUI();
 
 </script>
 
