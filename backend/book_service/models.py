@@ -1,5 +1,9 @@
-from database import engine
-from sqlalchemy import Column, Integer, String
+try:
+    from .database import engine
+except ImportError:
+    from database import engine
+
+from sqlalchemy import Column, Float, Integer, String
 from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
@@ -11,6 +15,12 @@ class Book(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String)
     author = Column(String)
+    description = Column(String)
+    year = Column(String)
+    rating = Column(Float)
+    genre = Column(String)
+    image_url = Column(String)
+    status = Column(String)
     user_id = Column(String)
 
 
@@ -30,6 +40,8 @@ class ReadingList(Base):
     id = Column(Integer, primary_key=True, index=True)
     book_id = Column(Integer)
     user_id = Column(String)
+    progress = Column(Integer)
+    status = Column(String)
 
 
 Base.metadata.create_all(bind=engine)
