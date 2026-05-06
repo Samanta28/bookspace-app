@@ -43,7 +43,7 @@ Responsibilities:
 Default URL:
 
 ```text
-http://127.0.0.1:8000
+http://127.0.0.1:5500
 ```
 
 ### Book Service
@@ -62,7 +62,7 @@ Responsibilities:
 Default URL:
 
 ```text
-http://127.0.0.1:8001
+http://127.0.0.1:8000
 ```
 
 ## Technology Stack
