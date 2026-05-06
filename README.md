@@ -219,4 +219,3 @@ Direct pushes to `main` are avoided. Changes should be merged through Pull Reque
 ## Status
 
 The MVP is complete and includes authentication, book management, reviews, reading list handling and the Flutter Web interface.
-

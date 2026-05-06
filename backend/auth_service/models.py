@@ -1,4 +1,8 @@
-from database import engine
+try:
+    from .database import engine
+except ImportError:
+    from database import engine
+
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import declarative_base
 
@@ -10,6 +14,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True)
+    email = Column(String)
     password = Column(String)
 
 

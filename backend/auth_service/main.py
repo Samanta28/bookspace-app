@@ -1,25 +1,49 @@
-from database import SessionLocal
-from fastapi import FastAPI, HTTPException
+import os
+from pathlib import Path
+from typing import Optional
+
+from dotenv import load_dotenv
+from fastapi import Depends, FastAPI, HTTPException
+from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import jwt
-from models import User
 from passlib.context import CryptContext
 from pydantic import BaseModel
-from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
+
+try:
+    from .database import SessionLocal, engine
+    from .models import Base, User
+except ImportError:
+    from database import SessionLocal, engine
+    from models import Base, User
 
 app = FastAPI()
 
+load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5500"],  
+    allow_origins=[
+        "http://localhost:5500",
+        "http://127.0.0.1:5500",
+    ],
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1)(:\d+)?",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-SECRET_KEY = "secret"
-ALGORITHM = "HS256"
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("JWT_ALGORITHM") or os.getenv("ALGORITHM")
+
+if not SECRET_KEY or not ALGORITHM:
+    raise RuntimeError("SECRET_KEY and JWT_ALGORITHM must be set")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+security = HTTPBearer()
 
 fake_db = {}
 
@@ -27,39 +51,113 @@ fake_db = {}
 class UserRequest(BaseModel):
     username: str
     password: str
+    email: Optional[str] = None
+
+
+class ResetPasswordRequest(BaseModel):
+    username: str
+    new_password: str
+
+
+def api_error(status_code: int, code: str, message: str, details: object = None):
+    raise HTTPException(
+        status_code=status_code,
+        detail={
+            "code": code,
+            "message": message,
+            "details": details,
+        },
+    )
+
+
+def ensure_schema():
+    Base.metadata.create_all(bind=engine)
+    with engine.begin() as connection:
+        connection.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS email VARCHAR"))
+
+
+ensure_schema()
+
+
+@app.exception_handler(RequestValidationError)
+def validation_exception_handler(_, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": {
+                "code": "validation_error",
+                "message": "Validation failed",
+                "details": exc.errors(),
+            }
+        },
+    )
 
 
 @app.post("/auth/register")
 def register(user: UserRequest):
     db = SessionLocal()
+    try:
+        existing_user = db.query(User).filter(User.username == user.username).first()
+        if existing_user:
+            api_error(400, "user_exists", "User already exists", {"username": user.username})
 
-    existing_user = db.query(User).filter(User.username == user.username).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="User exists")
+        hashed_password = pwd_context.hash(user.password)
 
-    hashed_password = pwd_context.hash(user.password)
+        new_user = User(username=user.username, email=user.email, password=hashed_password)
+        db.add(new_user)
+        db.commit()
 
-    new_user = User(username=user.username, password=hashed_password)
-    db.add(new_user)
-    db.commit()
-
-    return {"message": "User registered"}
+        return {"message": "User registered"}
+    finally:
+        db.close()
 
 
 @app.post("/auth/login")
 def login(user: UserRequest):
     db = SessionLocal()
+    try:
+        db_user = db.query(User).filter(User.username == user.username).first()
+        if not db_user:
+            api_error(400, "user_not_found", "User not found", {"username": user.username})
 
-    db_user = db.query(User).filter(User.username == user.username).first()
-    if not db_user:
-        raise HTTPException(status_code=400, detail="User not found")
+        if not pwd_context.verify(user.password, db_user.password):
+            api_error(400, "wrong_password", "Wrong password")
 
-    if not pwd_context.verify(user.password, db_user.password):
-        raise HTTPException(status_code=400, detail="Wrong password")
+        token = jwt.encode({"sub": user.username}, SECRET_KEY, algorithm=ALGORITHM)
 
-    token = jwt.encode({"sub": user.username}, SECRET_KEY, algorithm=ALGORITHM)
+        return {"access_token": token}
+    finally:
+        db.close()
 
-    return {"access_token": token}
+
+@app.post("/auth/reset-password")
+def reset_password(request: ResetPasswordRequest):
+    db = SessionLocal()
+    try:
+        db_user = db.query(User).filter(User.username == request.username).first()
+        if not db_user:
+            api_error(400, "user_not_found", "User not found", {"username": request.username})
+
+        db_user.password = pwd_context.hash(request.new_password)
+        db.commit()
+        return {"message": "Password changed"}
+    finally:
+        db.close()
+
+
+@app.get("/auth/verify")
+def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+    except Exception:
+        api_error(401, "invalid_token", "Invalid token")
+
+    username = payload.get("sub")
+    if not username:
+        api_error(401, "invalid_token", "Invalid token")
+
+    return {"username": username}
+
 
 @app.get("/db-test")
 def db_test():

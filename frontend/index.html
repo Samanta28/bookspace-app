@@ -449,17 +449,6 @@ nav {
 
 }
 
-.hero::before {
-    content: "";
-    position: absolute;
-    width: 300px;
-    height: 300px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 50%;
-    top: -100px;
-    right: -100px;
-}
-
 .hero::after {
     content: "";
     position: absolute;
@@ -512,25 +501,21 @@ nav {
 .book:hover img {
     transform: scale(1.08);
 }
+
 .book::after {
     content: "View details";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 0%;
-    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    margin-top: auto;
+    background: rgba(0,0,0,0.75);
     color: white;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    padding-bottom: 10px;
+    text-align: center;
+    padding: 12px;
     font-size: 14px;
+    opacity: 0;
     transition: 0.3s;
 }
 
 .book:hover::after {
-    height: 50%;
+    opacity: 1;
 }
 
 .book{
@@ -678,6 +663,19 @@ nav {
 /* DARK MODE */
 .dark .modal-content {
     background: #2f3640;
+}
+
+.review-item{
+    padding:15px;
+    margin-bottom:10px;
+    border-radius:10px;
+    background:#f5f6fa;
+    color:black;
+}
+
+.dark .review-item{
+    background:#1e2227;
+    color:white;
 }
 
 </style>
@@ -1145,7 +1143,7 @@ onclick="openModal(this)">
 <div class="book searchable fade-in"
 data-genre="Thriller"
 onclick="openModal(this)">
-<img src="https://covers.openlibrary.org/b/id/12955536-L.jpg">
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVSsxzVntocdzDRfjD6aMLrQqyEUbv_yqpwQ&s">
 <h4>Half His Age</h4>
 <p>Jennette McCurdy</p>
 <p>2026</p>
@@ -1155,7 +1153,7 @@ onclick="openModal(this)">
 <div class="book searchable fade-in"
 data-genre="Thriller"
 onclick="openModal(this)">
-<img src="https://covers.openlibrary.org/b/id/12955536-L.jpg">
+<img src="https://m.media-amazon.com/images/I/81xA2938-FL._AC_UF1000,1000_QL80_.jpg">
 <h4>Anatomy of an Alibi</h4>
 <p>Ashley Elston</p>
 <p>2026</p>
@@ -1271,8 +1269,14 @@ onclick="openModal(this)">
         Forgot password?
     </span>
 
-</p>
+    </p>
 
+    </div>
+
+   </div>
+</div>
+
+<!-- RESET PASSWORD -->
 <div id="resetPassword" class="section">
 
     <div class="center-container">
@@ -1301,11 +1305,6 @@ onclick="openModal(this)">
 
     </div>
 
-</div>
-
-</div>
-
-</div>
 </div>
 
 <!-- SIGNUP -->
@@ -1780,12 +1779,24 @@ function addToMyBooks(){
     }
 
 
-    myBooks[currentUser].push({
+    let author =
+    document.getElementById("modalAuthor").innerText;
 
-        title: title,
-        img: img
+let year =
+    document.getElementById("modalYear").innerText;
 
-    });
+let rating =
+    document.getElementById("modalRating").innerText;
+
+myBooks[currentUser].push({
+
+    title: title,
+    img: img,
+    author: author,
+    year: year,
+    rating: rating
+
+});
 
 
     localStorage.setItem(
@@ -1947,7 +1958,7 @@ function filterGenre(genre){
 
     let allBooks =
         document.querySelectorAll(
-            ".searchable"
+            "#home .searchable"
         );
 
     let container =
@@ -2041,20 +2052,20 @@ function loadUserBooks(){
     userBooks.forEach(book => {
 
         container.innerHTML += `
-            <div class="book"
+            <div class="book searchable"
                  onclick="openModal(this)">
 
                 <img src="${book.img}">
 
                 <h4>${book.title}</h4>
 
-                <p>Saved by you</p>
+                <p>${book.author}</p>
 
-                <p>-</p>
+                <p>${book.year}</p>
 
                 <p class="rating">
-                    ⭐⭐⭐⭐⭐
-                </p>
+                ${book.rating}
+            </p>
 
             </div>
         `;
@@ -2112,19 +2123,14 @@ function showReviews(){
         list.forEach(review => {
 
             container.innerHTML += `
-                <div style="
-                    padding:15px;
-                    margin-bottom:10px;
-                    border-radius:10px;
-                    background:#f5f6fa;
-                ">
+    <div class="review-item">
 
-                    <b>@${review.user}</b><br>
-                    ${review.stars}<br><br>
-                    ${review.text}
+        <b>@${review.user}</b><br>
+        ${review.stars}<br><br>
+        ${review.text}
 
-                </div>
-            `;
+    </div>
+`;
 
         });
 
@@ -2240,13 +2246,6 @@ document.addEventListener("DOMContentLoaded", function(){
     if(currentUser){
         loadUserBooks();
     }
-
-    updateHeroBooks();
-
-    setInterval(
-        updateHeroBooks,
-        3000
-    );
 
 });
 
