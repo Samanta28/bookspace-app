@@ -1,9 +1,14 @@
 import os
+import json
 from typing import Optional
+from urllib import error as urlerror
+from urllib import request as urlrequest
 
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from pydantic import BaseModel, Field
@@ -20,6 +25,7 @@ load_dotenv("../.env")
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("JWT_ALGORITHM") or os.getenv("ALGORITHM")
+AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL", "http://127.0.0.1:8000")
 
 if not SECRET_KEY or not ALGORITHM:
     raise RuntimeError("SECRET_KEY and ALGORITHM must be set")
@@ -75,16 +81,47 @@ def api_error(status_code: int, code: str, message: str, details: object = None)
     )
 
 
+@app.exception_handler(RequestValidationError)
+def validation_exception_handler(_, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": {
+                "code": "validation_error",
+                "message": "Validation failed",
+                "details": exc.errors(),
+            }
+        },
+    )
+
+
+def verify_with_auth_service(token: str) -> Optional[str]:
+    req = urlrequest.Request(
+        f"{AUTH_SERVICE_URL}/auth/verify",
+        headers={"Authorization": f"Bearer {token}"},
+        method="GET",
+    )
+    try:
+        with urlrequest.urlopen(req, timeout=3) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+            return payload.get("username")
+    except (urlerror.URLError, urlerror.HTTPError, TimeoutError, json.JSONDecodeError):
+        return None
+
+
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    username = verify_with_auth_service(credentials.credentials)
+    if username:
+        return username
+
     try:
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        username = payload.get("sub")
     except JWTError:
-        api_error(401, "invalid_token", "Invalid token")
+        username = None
 
-    username = payload.get("sub")
     if not username:
         api_error(401, "invalid_token", "Invalid token")
-
     return username
 
 

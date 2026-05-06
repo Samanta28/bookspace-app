@@ -55,16 +55,20 @@ class Book {
 
   factory Book.fromJson(Map<String, dynamic> json) => Book(
         id: _readInt(json['id']),
-        readingListId: _readInt(json['readingListId'] ?? json['reading_list_id']),
+        readingListId:
+            _readInt(json['readingListId'] ?? json['reading_list_id']),
         userId: json['userId'] as String? ?? json['user_id'] as String?,
         progress: _readInt(json['progress']) ?? 0,
-        readingStatus: (json['readingStatus'] ?? json['reading_status'] ?? 'to_read') as String,
+        readingStatus: (json['readingStatus'] ??
+            json['reading_status'] ??
+            'to_read') as String,
         title: json['title'] as String,
         author: json['author'] as String,
         year: (json['year'] ?? '') as String,
         rating: _readRating(json['rating']),
         genre: json['genre'] as String? ?? 'All',
-        imageUrl: (json['imageUrl'] ?? json['image_url'] ?? json['img'] ?? '') as String,
+        imageUrl: (json['imageUrl'] ?? json['image_url'] ?? json['img'] ?? '')
+            as String,
         description: json['description'] as String?,
       );
 
@@ -128,7 +132,8 @@ class BookReview {
   factory BookReview.fromJson(Map<String, dynamic> json) => BookReview(
         id: _readInt(json['id']),
         bookId: _readInt(json['bookId'] ?? json['book_id']),
-        bookTitle: json['bookTitle'] as String? ?? json['book_title'] as String?,
+        bookTitle:
+            json['bookTitle'] as String? ?? json['book_title'] as String?,
         user: (json['user'] ?? json['user_id'] ?? '') as String,
         stars: _readStars(json['stars'] ?? json['rating']),
         text: (json['text'] ?? json['content'] ?? '') as String,
@@ -153,10 +158,20 @@ class BookReview {
   }
 }
 
-enum BookSection { home, toRead, myBooks, highest, newBooks, genre, login, signup, reset }
+enum BookSection {
+  home,
+  toRead,
+  myBooks,
+  highest,
+  newBooks,
+  genre,
+  login,
+  signup,
+  reset
+}
 
-const authApiBase = 'http://127.0.0.1:5500';
-const bookApiBase = 'http://127.0.0.1:8000';
+const authApiBase = 'http://127.0.0.1:8000';
+const bookApiBase = 'http://127.0.0.1:8001';
 
 class BookSpaceApp extends StatefulWidget {
   const BookSpaceApp({super.key});
@@ -231,7 +246,6 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
   final _signupPassword = TextEditingController();
   final _resetUsername = TextEditingController();
   final _resetPassword = TextEditingController();
-
   @override
   void initState() {
     super.initState();
@@ -263,10 +277,12 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
   void _loadLocalState() {
     final savedBooks = jsonDecode(html.window.localStorage['myBooks'] ?? '{}')
         as Map<String, dynamic>;
-    final savedToRead = jsonDecode(html.window.localStorage['toReadBooks'] ?? '{}')
-        as Map<String, dynamic>;
-    final savedCatalog = jsonDecode(html.window.localStorage['catalogBooks'] ?? '[]')
-        as List<dynamic>;
+    final savedToRead =
+        jsonDecode(html.window.localStorage['toReadBooks'] ?? '{}')
+            as Map<String, dynamic>;
+    final savedCatalog =
+        jsonDecode(html.window.localStorage['catalogBooks'] ?? '[]')
+            as List<dynamic>;
     final savedReviews = jsonDecode(html.window.localStorage['reviews'] ?? '{}')
         as Map<String, dynamic>;
 
@@ -282,7 +298,8 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
       (title, reviews) => MapEntry(
         title,
         (reviews as List<dynamic>)
-            .map((review) => BookReview.fromJson(review as Map<String, dynamic>))
+            .map(
+                (review) => BookReview.fromJson(review as Map<String, dynamic>))
             .toList(),
       ),
     );
@@ -317,10 +334,11 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
 
   String? get _token => html.window.localStorage['token'];
 
-  List<Book> get _allCatalogBooks =>
-      _uniqueBooks([...trendingBooks, ...highestRatedBooks, ...newBooks, ..._catalogBooks]);
+  List<Book> get _allCatalogBooks => _uniqueBooks(
+      [...trendingBooks, ...highestRatedBooks, ...newBooks, ..._catalogBooks]);
 
-  List<BookReview> _reviewsForBook(Book book) => _reviews[book.title] ?? const [];
+  List<BookReview> _reviewsForBook(Book book) =>
+      _reviews[book.title] ?? const [];
 
   int _reviewCount(Book book) => _reviewsForBook(book).length;
 
@@ -430,7 +448,8 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
       }
       return data;
     } on html.ProgressEvent catch (_) {
-      throw Exception('Book Service is offline. Start backend on http://127.0.0.1:8000.');
+      throw Exception(
+          'Book Service is offline. Start backend on http://127.0.0.1:8000.');
     } on FormatException {
       throw Exception('Invalid server response');
     }
@@ -455,8 +474,10 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
       final readData = await _requestJson(
         '$bookApiBase/books?user=${Uri.encodeComponent(_currentUser)}&status=read',
       );
-      final toReadData = await _requestJson('$bookApiBase/reading-list', auth: true);
-      final catalogData = await _requestJson('$bookApiBase/books?status=catalog');
+      final toReadData =
+          await _requestJson('$bookApiBase/reading-list', auth: true);
+      final catalogData =
+          await _requestJson('$bookApiBase/books?status=catalog');
       dynamic reviewData;
       try {
         reviewData = await _requestJson('$bookApiBase/reviews');
@@ -614,11 +635,14 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
       _snack('Added to My Read Books');
     } catch (error) {
       final msg = error.toString().replaceFirst('Exception: ', '');
-      setState(() => books.add(book.copyWith(progress: 100, readingStatus: 'read')));
+      setState(
+          () => books.add(book.copyWith(progress: 100, readingStatus: 'read')));
       _persistMyBooks();
-      _snack(msg.startsWith('Book Service is offline')
-          ? 'Saved locally because Book Service is offline.'
-          : msg, error: true);
+      _snack(
+          msg.startsWith('Book Service is offline')
+              ? 'Saved locally because Book Service is offline.'
+              : msg,
+          error: true);
     }
   }
 
@@ -685,11 +709,14 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
       _snack('Added to To Read');
     } catch (error) {
       final msg = error.toString().replaceFirst('Exception: ', '');
-      setState(() => books.add(book.copyWith(progress: 0, readingStatus: 'to_read')));
+      setState(() =>
+          books.add(book.copyWith(progress: 0, readingStatus: 'to_read')));
       _persistToReadBooks();
-      _snack(msg.startsWith('Book Service is offline')
-          ? 'Saved locally because Book Service is offline.'
-          : msg, error: true);
+      _snack(
+          msg.startsWith('Book Service is offline')
+              ? 'Saved locally because Book Service is offline.'
+              : msg,
+          error: true);
     }
   }
 
@@ -716,7 +743,11 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
         '$bookApiBase/reading-list/$listId',
         method: 'PUT',
         auth: true,
-        body: {'book_id': book.id, 'progress': progress, 'status': progress > 0 ? 'started' : 'to_read'},
+        body: {
+          'book_id': book.id,
+          'progress': progress,
+          'status': progress > 0 ? 'started' : 'to_read'
+        },
       );
     } catch (_) {}
   }
@@ -735,14 +766,18 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
     _persistMyBooks();
     _persistToReadBooks();
     try {
-      final readBook = await _ensureRemoteBook(book.copyWith(progress: 100, readingStatus: 'read'), status: 'read');
+      final readBook = await _ensureRemoteBook(
+          book.copyWith(progress: 100, readingStatus: 'read'),
+          status: 'read');
       if (book.readingListId != null) {
-        await _requestJson('$bookApiBase/reading-list/${book.readingListId}', method: 'DELETE', auth: true);
+        await _requestJson('$bookApiBase/reading-list/${book.readingListId}',
+            method: 'DELETE', auth: true);
       }
       setState(() {
         final idx = readBooks.indexWhere((b) => b.title == readBook.title);
         if (idx != -1) {
-          readBooks[idx] = readBook.copyWith(progress: 100, readingStatus: 'read');
+          readBooks[idx] =
+              readBook.copyWith(progress: 100, readingStatus: 'read');
         }
       });
       _persistMyBooks();
@@ -750,7 +785,8 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
     _snack('Moved to My Read Books');
   }
 
-  Future<void> _saveReview(Book book, int stars, String text, {BookReview? existing}) async {
+  Future<void> _saveReview(Book book, int stars, String text,
+      {BookReview? existing}) async {
     if (!_loggedIn) {
       _snack('Login first', error: true);
       return;
@@ -762,7 +798,9 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
         return;
       }
       final data = await _requestJson(
-        existing?.id == null ? '$bookApiBase/reviews' : '$bookApiBase/reviews/${existing!.id}',
+        existing?.id == null
+            ? '$bookApiBase/reviews'
+            : '$bookApiBase/reviews/${existing!.id}',
         method: existing?.id == null ? 'POST' : 'PUT',
         auth: true,
         body: {'book_id': saved.id, 'rating': stars, 'content': text},
@@ -787,10 +825,12 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
   Future<void> _deleteReview(Book book, BookReview review) async {
     try {
       if (review.id != null) {
-        await _requestJson('$bookApiBase/reviews/${review.id}', method: 'DELETE', auth: true);
+        await _requestJson('$bookApiBase/reviews/${review.id}',
+            method: 'DELETE', auth: true);
       }
       final list = _reviews.putIfAbsent(book.title, () => []);
-      setState(() => list.removeWhere((item) => item.id == review.id || item.text == review.text));
+      setState(() => list.removeWhere(
+          (item) => item.id == review.id || item.text == review.text));
       _persistReviews();
       _snack('Review deleted');
     } catch (error) {
@@ -802,7 +842,8 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: error ? const Color(0xFFD63031) : const Color(0xFF00B894),
+        backgroundColor:
+            error ? const Color(0xFFD63031) : const Color(0xFF00B894),
       ),
     );
   }
@@ -831,7 +872,8 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
           title: 'Welcome back',
           fields: [
             _field(_loginUsername, 'Username', Icons.person_outline),
-            _field(_loginPassword, 'Password', Icons.lock_outline, obscure: true),
+            _field(_loginPassword, 'Password', Icons.lock_outline,
+                obscure: true),
           ],
           action: 'Login',
           onAction: _login,
@@ -845,7 +887,8 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
           fields: [
             _field(_signupUsername, 'Username', Icons.person_outline),
             _field(_signupEmail, 'Email', Icons.mail_outline),
-            _field(_signupPassword, 'Password', Icons.lock_outline, obscure: true),
+            _field(_signupPassword, 'Password', Icons.lock_outline,
+                obscure: true),
           ],
           action: 'Sign Up',
           onAction: _register,
@@ -858,7 +901,8 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
           title: 'Reset Password',
           fields: [
             _field(_resetUsername, 'Username', Icons.person_outline),
-            _field(_resetPassword, 'New password', Icons.lock_reset, obscure: true),
+            _field(_resetPassword, 'New password', Icons.lock_reset,
+                obscure: true),
           ],
           action: 'Reset password',
           onAction: _resetUserPassword,
@@ -882,9 +926,12 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
             _brand(),
             _navButton('Home', Icons.home_outlined, BookSection.home),
             _navButton('To Read', Icons.bookmark_border, BookSection.toRead),
-            _navButton('My Read Books', Icons.menu_book_outlined, BookSection.myBooks),
-            _navButton('Highest Rated', Icons.star_outline, BookSection.highest),
-            _navButton('New', Icons.local_fire_department_outlined, BookSection.newBooks),
+            _navButton(
+                'My Read Books', Icons.menu_book_outlined, BookSection.myBooks),
+            _navButton(
+                'Highest Rated', Icons.star_outline, BookSection.highest),
+            _navButton('New', Icons.local_fire_department_outlined,
+                BookSection.newBooks),
             _genreMenu(),
             if (_loggedIn)
               FilledButton.icon(
@@ -975,6 +1022,7 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
   }
 
   Widget _genreMenu() {
+    final selected = _section == BookSection.genre;
     return PopupMenuButton<String>(
       tooltip: 'Genre',
       onSelected: (genre) {
@@ -986,21 +1034,63 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
       itemBuilder: (context) => genres
           .map((genre) => PopupMenuItem(
                 value: genre,
-                child: Text(genre),
+                child: Row(
+                  children: [
+                    Icon(_genreIcon(genre),
+                        size: 18, color: const Color(0xFF6C5CE7)),
+                    const SizedBox(width: 10),
+                    Text(genre),
+                  ],
+                ),
               ))
           .toList(),
-      child: const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.category_outlined),
-            SizedBox(width: 8),
-            Text('Genre'),
-          ],
+      child: IgnorePointer(
+        child: TextButton.icon(
+          onPressed: () {},
+          icon: const Icon(Icons.category_outlined, size: 19),
+          label: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Genre'),
+              SizedBox(width: 4),
+              Icon(Icons.expand_more, size: 16),
+            ],
+          ),
+          style: TextButton.styleFrom(
+            foregroundColor: selected ? const Color(0xFF6C5CE7) : null,
+          ),
         ),
       ),
     );
+  }
+
+  IconData _genreIcon(String genre) {
+    switch (genre) {
+      case 'Fantasy':
+        return Icons.auto_awesome_outlined;
+      case 'Romance':
+        return Icons.favorite_border;
+      case 'Thriller':
+        return Icons.psychology_alt_outlined;
+      case 'Classic':
+        return Icons.menu_book_outlined;
+      case 'Self-help':
+        return Icons.self_improvement_outlined;
+      case 'Mystery':
+        return Icons.search_outlined;
+      case 'Drama':
+        return Icons.theater_comedy_outlined;
+      case 'Historical':
+        return Icons.history_edu_outlined;
+      case 'Young Adult':
+        return Icons.school_outlined;
+      case 'Sci-Fi':
+        return Icons.rocket_launch_outlined;
+      case 'All':
+        return Icons.layers_outlined;
+      default:
+        return Icons.book_outlined;
+    }
   }
 
   Widget _homeView() {
@@ -1048,7 +1138,7 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
                       ),
                     ),
                     SizedBox(width: narrow ? 0 : 24, height: narrow ? 28 : 0),
-                    _heroCovers(),
+                    HeroBookCarousel(books: _allCatalogBooks),
                   ],
                 );
               },
@@ -1066,35 +1156,6 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
     );
   }
 
-  Widget _heroCovers() {
-    return SizedBox(
-      width: 280,
-      height: 180,
-      child: Stack(
-        children: [
-          for (var i = 0; i < 5; i++)
-            Positioned(
-              left: 28.0 + i * 38,
-              top: i.isEven ? 0 : 18,
-              child: Transform.rotate(
-                angle: (i - 2) * 0.08,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.network(
-                    trendingBooks[i].imageUrl,
-                    width: 86,
-                    height: 132,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _coverFallback(),
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
   Widget _bookGridView({required String title, required List<Book> books}) {
     return SingleChildScrollView(
       key: ValueKey(title),
@@ -1102,7 +1163,9 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
+          Text(title,
+              style:
+                  const TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
           const SizedBox(height: 18),
           _booksWrap(_filterBooks(books)),
         ],
@@ -1154,7 +1217,8 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('To Read', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
+          const Text('To Read',
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
           const SizedBox(height: 18),
           if (books.isEmpty)
             const Text('No books in your reading list yet.')
@@ -1224,7 +1288,8 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('My Read Books', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
+          const Text('My Read Books',
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
           const SizedBox(height: 18),
           if (books.isEmpty)
             const Text('No read books saved yet.')
@@ -1255,7 +1320,8 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
                 Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800),
+                  style: const TextStyle(
+                      fontSize: 26, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 16),
                 ...fields,
@@ -1303,30 +1369,35 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
     return Wrap(
       spacing: 20,
       runSpacing: 20,
-      children: books
-          .map(
-            (book) {
-              final alreadyRead =
-                  (_myBooks[_currentUser] ?? []).any((saved) => saved.title == book.title);
-              final alreadyToRead =
-                  (_toReadBooks[_currentUser] ?? []).any((saved) => saved.title == book.title);
-              return BookCard(
-                book: book,
-                rating: _bookRating(book),
-                reviewCount: _reviewCount(book),
-                onTap: () => _showBookDialog(book),
-                onAddToMyReadBooks:
-                    showActions && !alreadyRead ? () => unawaited(_addToMyBooks(book)) : null,
-                onAddToReadList:
-                    showActions && !alreadyToRead ? () => unawaited(_addToRead(book)) : null,
-                onEdit: book.userId == _currentUser ? () => _showBookFormDialog(book: book) : null,
-                onDelete: book.userId == _currentUser ? () => unawaited(_deleteCatalogBook(book)) : null,
-                myReadBooksLabel: alreadyRead ? 'Read' : 'Add to My Read Books',
-                toReadListLabel: alreadyToRead ? 'In To Read' : 'Add to To Read List',
-              );
-            },
-          )
-          .toList(),
+      children: books.map(
+        (book) {
+          final alreadyRead = (_myBooks[_currentUser] ?? [])
+              .any((saved) => saved.title == book.title);
+          final alreadyToRead = (_toReadBooks[_currentUser] ?? [])
+              .any((saved) => saved.title == book.title);
+          return BookCard(
+            book: book,
+            rating: _bookRating(book),
+            reviewCount: _reviewCount(book),
+            onTap: () => _showBookDialog(book),
+            onAddToMyReadBooks: showActions && !alreadyRead
+                ? () => unawaited(_addToMyBooks(book))
+                : null,
+            onAddToReadList: showActions && !alreadyToRead
+                ? () => unawaited(_addToRead(book))
+                : null,
+            onEdit: book.userId == _currentUser
+                ? () => _showBookFormDialog(book: book)
+                : null,
+            onDelete: book.userId == _currentUser
+                ? () => unawaited(_deleteCatalogBook(book))
+                : null,
+            myReadBooksLabel: alreadyRead ? 'Read' : 'Add to My Read Books',
+            toReadListLabel:
+                alreadyToRead ? 'In To Read' : 'Add to To Read List',
+          );
+        },
+      ).toList(),
     );
   }
 
@@ -1338,7 +1409,9 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
     try {
       final payload = _bookPayload(book)..['status'] = 'catalog';
       final data = await _requestJson(
-        existing?.id == null ? '$bookApiBase/books' : '$bookApiBase/books/${existing!.id}',
+        existing?.id == null
+            ? '$bookApiBase/books'
+            : '$bookApiBase/books/${existing!.id}',
         method: existing?.id == null ? 'POST' : 'PUT',
         auth: true,
         body: payload,
@@ -1357,11 +1430,14 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
     setState(() {
       final index = _catalogBooks.indexWhere((item) =>
           (book.id != null && item.id == book.id) ||
-          (existing != null && item.title == existing.title && item.author == existing.author));
+          (existing != null &&
+              item.title == existing.title &&
+              item.author == existing.author));
       if (index == -1) {
         _catalogBooks.add(book.copyWith(userId: book.userId ?? _currentUser));
       } else {
-        _catalogBooks[index] = book.copyWith(userId: book.userId ?? _currentUser);
+        _catalogBooks[index] =
+            book.copyWith(userId: book.userId ?? _currentUser);
       }
     });
     _persistCatalogBooks();
@@ -1370,7 +1446,8 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
   Future<void> _deleteCatalogBook(Book book) async {
     try {
       if (book.id != null) {
-        await _requestJson('$bookApiBase/books/${book.id}', method: 'DELETE', auth: true);
+        await _requestJson('$bookApiBase/books/${book.id}',
+            method: 'DELETE', auth: true);
       }
     } catch (_) {}
     setState(() {
@@ -1391,7 +1468,8 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
     final authorController = TextEditingController(text: book?.author ?? '');
     final yearController = TextEditingController(text: book?.year ?? '');
     final coverController = TextEditingController(text: book?.imageUrl ?? '');
-    final descriptionController = TextEditingController(text: book?.description ?? '');
+    final descriptionController =
+        TextEditingController(text: book?.description ?? '');
     var selectedGenre = genres.contains(book?.genre) && book?.genre != 'All'
         ? book!.genre
         : genres.firstWhere((g) => g != 'All');
@@ -1407,16 +1485,30 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextField(controller: titleController, decoration: const InputDecoration(labelText: 'Title', border: OutlineInputBorder())),
+                  TextField(
+                      controller: titleController,
+                      decoration: const InputDecoration(
+                          labelText: 'Title', border: OutlineInputBorder())),
                   const SizedBox(height: 12),
-                  TextField(controller: authorController, decoration: const InputDecoration(labelText: 'Author', border: OutlineInputBorder())),
+                  TextField(
+                      controller: authorController,
+                      decoration: const InputDecoration(
+                          labelText: 'Author', border: OutlineInputBorder())),
                   const SizedBox(height: 12),
-                  TextField(controller: yearController, decoration: const InputDecoration(labelText: 'Publication year', border: OutlineInputBorder())),
+                  TextField(
+                      controller: yearController,
+                      decoration: const InputDecoration(
+                          labelText: 'Publication year',
+                          border: OutlineInputBorder())),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
                     initialValue: selectedGenre,
-                    decoration: const InputDecoration(labelText: 'Genre', border: OutlineInputBorder()),
-                    items: genres.where((g) => g != 'All').map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
+                    decoration: const InputDecoration(
+                        labelText: 'Genre', border: OutlineInputBorder()),
+                    items: genres
+                        .where((g) => g != 'All')
+                        .map((g) => DropdownMenuItem(value: g, child: Text(g)))
+                        .toList(),
                     onChanged: (value) {
                       if (value != null) {
                         setDialogState(() => selectedGenre = value);
@@ -1428,19 +1520,23 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
                     controller: descriptionController,
                     minLines: 3,
                     maxLines: 5,
-                    decoration: const InputDecoration(labelText: 'Description', border: OutlineInputBorder()),
+                    decoration: const InputDecoration(
+                        labelText: 'Description', border: OutlineInputBorder()),
                   ),
                   const SizedBox(height: 12),
                   TextField(
                     controller: coverController,
-                    decoration: const InputDecoration(labelText: 'Cover image link', border: OutlineInputBorder()),
+                    decoration: const InputDecoration(
+                        labelText: 'Cover image link',
+                        border: OutlineInputBorder()),
                     onChanged: (_) => setDialogState(() {}),
                   ),
                   const SizedBox(height: 10),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: OutlinedButton.icon(
-                      onPressed: () => _pickCoverImage(coverController, setDialogState),
+                      onPressed: () =>
+                          _pickCoverImage(coverController, setDialogState),
                       icon: const Icon(Icons.image_outlined),
                       label: const Text('Choose cover image'),
                     ),
@@ -1450,7 +1546,9 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel')),
             FilledButton(
               onPressed: () {
                 final title = titleController.text.trim();
@@ -1458,7 +1556,10 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
                 final year = yearController.text.trim();
                 final cover = coverController.text.trim();
                 final description = descriptionController.text.trim();
-                if (title.isEmpty || author.isEmpty || year.isEmpty || cover.isEmpty) {
+                if (title.isEmpty ||
+                    author.isEmpty ||
+                    year.isEmpty ||
+                    cover.isEmpty) {
                   _snack('Fill title, author, year and cover', error: true);
                   return;
                 }
@@ -1486,7 +1587,8 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
     );
   }
 
-  Future<void> _pickCoverImage(TextEditingController controller, StateSetter setDialogState) async {
+  Future<void> _pickCoverImage(
+      TextEditingController controller, StateSetter setDialogState) async {
     final input = html.FileUploadInputElement()..accept = 'image/*';
     input.click();
     await input.onChange.first;
@@ -1502,10 +1604,10 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
   }
 
   void _showBookDialog(Book book) {
-    final alreadyAdded =
-        (_myBooks[_currentUser] ?? []).any((saved) => saved.title == book.title);
-    final alreadyToRead =
-        (_toReadBooks[_currentUser] ?? []).any((saved) => saved.title == book.title);
+    final alreadyAdded = (_myBooks[_currentUser] ?? [])
+        .any((saved) => saved.title == book.title);
+    final alreadyToRead = (_toReadBooks[_currentUser] ?? [])
+        .any((saved) => saved.title == book.title);
 
     showDialog<void>(
       context: context,
@@ -1574,7 +1676,9 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
                       }
                     },
                     icon: Icon(
-                      alreadyAdded ? Icons.check_circle_outline : Icons.bookmark_add_outlined,
+                      alreadyAdded
+                          ? Icons.check_circle_outline
+                          : Icons.bookmark_add_outlined,
                     ),
                     label: Text(alreadyAdded ? 'Read' : 'Add to My Read Books'),
                   ),
@@ -1586,7 +1690,8 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
                             unawaited(_addToRead(book));
                           },
                     icon: const Icon(Icons.playlist_add),
-                    label: Text(alreadyToRead ? 'In To Read' : 'Add to To Read List'),
+                    label: Text(
+                        alreadyToRead ? 'In To Read' : 'Add to To Read List'),
                   ),
                   OutlinedButton.icon(
                     onPressed: () => _showReviewDialog(book),
@@ -1662,7 +1767,8 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
                             child: Text(_manualStars(value)),
                           ))
                       .toList(),
-                  onChanged: (value) => setDialogState(() => stars = value ?? 5),
+                  onChanged: (value) =>
+                      setDialogState(() => stars = value ?? 5),
                 ),
                 const SizedBox(height: 12),
                 TextField(
@@ -1685,7 +1791,8 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
             FilledButton(
               onPressed: () {
                 Navigator.pop(context);
-                unawaited(_saveReview(book, stars, controller.text.trim(), existing: review));
+                unawaited(_saveReview(book, stars, controller.text.trim(),
+                    existing: review));
               },
               child: const Text('Save'),
             ),
@@ -1700,7 +1807,8 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
     try {
       final savedBook = _loggedIn ? await _ensureRemoteBook(book) : book;
       if (savedBook.id != null) {
-        final data = await _requestJson('$bookApiBase/reviews/book/${savedBook.id}');
+        final data =
+            await _requestJson('$bookApiBase/reviews/book/${savedBook.id}');
         if (data is List<dynamic>) {
           reviews = data
               .map((item) => BookReview.fromJson(item as Map<String, dynamic>))
@@ -1721,34 +1829,35 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
               ? const Text('No reviews yet.')
               : Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: reviews
-                      .map(
-                        (review) {
-                          final own = review.user == _currentUser;
-                          return ListTile(
-                            leading: const Icon(Icons.person_outline),
-                            title: Text('@${review.user}'),
-                            subtitle: Text('${_manualStars(review.stars)}\n${review.text}'),
-                            trailing: own
-                                ? PopupMenuButton<String>(
-                                    onSelected: (value) {
-                                      Navigator.pop(context);
-                                      if (value == 'edit') {
-                                        _showReviewDialog(book, review: review);
-                                      } else if (value == 'delete') {
-                                        unawaited(_deleteReview(book, review));
-                                      }
-                                    },
-                                    itemBuilder: (context) => const [
-                                      PopupMenuItem(value: 'edit', child: Text('Edit')),
-                                      PopupMenuItem(value: 'delete', child: Text('Delete')),
-                                    ],
-                                  )
-                                : null,
-                          );
-                        },
-                      )
-                      .toList(),
+                  children: reviews.map(
+                    (review) {
+                      final own = review.user == _currentUser;
+                      return ListTile(
+                        leading: const Icon(Icons.person_outline),
+                        title: Text('@${review.user}'),
+                        subtitle: Text(
+                            '${_manualStars(review.stars)}\n${review.text}'),
+                        trailing: own
+                            ? PopupMenuButton<String>(
+                                onSelected: (value) {
+                                  Navigator.pop(context);
+                                  if (value == 'edit') {
+                                    _showReviewDialog(book, review: review);
+                                  } else if (value == 'delete') {
+                                    unawaited(_deleteReview(book, review));
+                                  }
+                                },
+                                itemBuilder: (context) => const [
+                                  PopupMenuItem(
+                                      value: 'edit', child: Text('Edit')),
+                                  PopupMenuItem(
+                                      value: 'delete', child: Text('Delete')),
+                                ],
+                              )
+                            : null,
+                      );
+                    },
+                  ).toList(),
                 ),
         ),
         actions: [
@@ -1794,7 +1903,8 @@ class ToReadCard extends StatelessWidget {
                 width: 230,
                 height: 300,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _coverFallback(width: 230, height: 300),
+                errorBuilder: (_, __, ___) =>
+                    _coverFallback(width: 230, height: 300),
               ),
               Padding(
                 padding: const EdgeInsets.all(14),
@@ -1810,7 +1920,8 @@ class ToReadCard extends StatelessWidget {
                         style: const TextStyle(fontWeight: FontWeight.w800),
                       ),
                     ),
-                    Text(book.author, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    Text(book.author,
+                        maxLines: 1, overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 10),
                     Row(
                       children: [
@@ -1890,7 +2001,8 @@ class BookCard extends StatelessWidget {
                     width: 220,
                     height: 300,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _coverFallback(width: 220, height: 300),
+                    errorBuilder: (_, __, ___) =>
+                        _coverFallback(width: 220, height: 300),
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
@@ -1907,7 +2019,8 @@ class BookCard extends StatelessWidget {
                                   book.title,
                                   maxLines: 3,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(fontWeight: FontWeight.w800),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w800),
                                 ),
                               ),
                             ),
@@ -1919,15 +2032,18 @@ class BookCard extends StatelessWidget {
                                 },
                                 itemBuilder: (context) => [
                                   if (onEdit != null)
-                                    const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                                    const PopupMenuItem(
+                                        value: 'edit', child: Text('Edit')),
                                   if (onDelete != null)
-                                    const PopupMenuItem(value: 'delete', child: Text('Delete')),
+                                    const PopupMenuItem(
+                                        value: 'delete', child: Text('Delete')),
                                 ],
                                 icon: const Icon(Icons.more_vert),
                               ),
                           ],
                         ),
-                        Text(book.author, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        Text(book.author,
+                            maxLines: 1, overflow: TextOverflow.ellipsis),
                         Text(book.year),
                         const SizedBox(height: 6),
                         _ratingStars(rating, size: 14, count: reviewCount),
@@ -1947,7 +2063,9 @@ class BookCard extends StatelessWidget {
                       child: FilledButton.icon(
                         onPressed: onAddToMyReadBooks,
                         icon: const Icon(Icons.bookmark_add_outlined),
-                        label: FittedBox(fit: BoxFit.scaleDown, child: Text(myReadBooksLabel)),
+                        label: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(myReadBooksLabel)),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -1956,13 +2074,128 @@ class BookCard extends StatelessWidget {
                       child: OutlinedButton.icon(
                         onPressed: onAddToReadList,
                         icon: const Icon(Icons.playlist_add),
-                        label: FittedBox(fit: BoxFit.scaleDown, child: Text(toReadListLabel)),
+                        label: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(toReadListLabel)),
                       ),
                     ),
                   ],
                 ),
               ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class HeroBookCarousel extends StatefulWidget {
+  const HeroBookCarousel({required this.books, super.key});
+
+  final List<Book> books;
+
+  @override
+  State<HeroBookCarousel> createState() => _HeroBookCarouselState();
+}
+
+class _HeroBookCarouselState extends State<HeroBookCarousel> {
+  late final PageController _pageController;
+  Timer? _swapTimer;
+  int _virtualPage = 1000;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(
+      viewportFraction: 0.34,
+      initialPage: _virtualPage,
+    );
+    _swapTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+      if (!mounted) {
+        return;
+      }
+      _virtualPage++;
+      if (_pageController.hasClients) {
+        _pageController.animateToPage(
+          _virtualPage,
+          duration: const Duration(milliseconds: 650),
+          curve: Curves.easeInOutCubic,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _swapTimer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final sourceBooks = widget.books.isNotEmpty ? widget.books : trendingBooks;
+    const cardWidth = 116.0;
+    const cardHeight = 170.0;
+
+    return RepaintBoundary(
+      child: SizedBox(
+        width: 320,
+        height: 210,
+        child: PageView.builder(
+          controller: _pageController,
+          itemBuilder: (context, index) {
+            final book = sourceBooks[index % sourceBooks.length];
+            return AnimatedBuilder(
+              animation: _pageController,
+              builder: (context, child) {
+                var distance = 0.0;
+                if (_pageController.hasClients &&
+                    _pageController.position.hasViewportDimension) {
+                  distance =
+                      (index - (_pageController.page ?? index)).abs().toDouble();
+                }
+                final scale =
+                    (1 - (distance * 0.18)).clamp(0.72, 1.0).toDouble();
+                final opacity =
+                    (1 - (distance * 0.45)).clamp(0.4, 1.0).toDouble();
+                final translateY = 18 * (1 - scale);
+                final rotateY = (distance * 0.35).clamp(0.0, 0.35).toDouble();
+
+                return Opacity(
+                  opacity: opacity,
+                  child: Transform(
+                    alignment: Alignment.center,
+                    transform: Matrix4.identity()
+                      ..setEntry(3, 2, 0.0012)
+                      ..translateByDouble(0.0, translateY, 0.0, 1.0)
+                      ..rotateY(index < (_pageController.page ?? index)
+                          ? rotateY
+                          : -rotateY)
+                      ..scaleByDouble(scale, scale, 1.0, 1.0),
+                    child: child,
+                  ),
+                );
+              },
+              child: Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    book.imageUrl,
+                    width: cardWidth,
+                    height: cardHeight,
+                    fit: BoxFit.cover,
+                    gaplessPlayback: true,
+                    filterQuality: FilterQuality.low,
+                    errorBuilder: (_, __, ___) => _coverFallback(
+                      width: cardWidth,
+                      height: cardHeight,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -1988,7 +2221,8 @@ Widget _ratingStars(double rating, {double size = 18, int count = 0}) {
     children: [
       for (var i = 0; i < full; i++)
         Icon(Icons.star, color: const Color(0xFFFFB300), size: size),
-      if (half) Icon(Icons.star_half, color: const Color(0xFFFFB300), size: size),
+      if (half)
+        Icon(Icons.star_half, color: const Color(0xFFFFB300), size: size),
       for (var i = 0; i < empty; i++)
         Icon(Icons.star_border, color: const Color(0xFFFFB300), size: size),
       const SizedBox(width: 4),
@@ -2000,7 +2234,8 @@ Widget _ratingStars(double rating, {double size = 18, int count = 0}) {
   );
 }
 
-String _manualStars(int rating) => '${'\u2605' * rating}${'\u2606' * (5 - rating)}';
+String _manualStars(int rating) =>
+    '${'\u2605' * rating}${'\u2606' * (5 - rating)}';
 
 double _readRating(Object? value) {
   if (value is num) {
@@ -2017,7 +2252,8 @@ int _readStars(Object? value) {
     return value.clamp(1, 5).toInt();
   }
   final text = value.toString();
-  final filled = '\u2605'.allMatches(text).length + '\u2B50'.allMatches(text).length;
+  final filled =
+      '\u2605'.allMatches(text).length + '\u2B50'.allMatches(text).length;
   return filled.clamp(1, 5).toInt();
 }
 
@@ -2061,8 +2297,10 @@ const trendingBooks = [
     year: '1937',
     rating: 4.7,
     genre: 'Fantasy',
-    imageUrl: 'https://d28hgpri8am2if.cloudfront.net/book_images/onix/cvr9781608873869/the-hobbit-9781608873869_hr.jpg',
-    description: 'A classic fantasy adventure about Bilbo Baggins, a reluctant hero who joins dwarves on a dangerous quest to reclaim treasure.',
+    imageUrl:
+        'https://d28hgpri8am2if.cloudfront.net/book_images/onix/cvr9781608873869/the-hobbit-9781608873869_hr.jpg',
+    description:
+        'A classic fantasy adventure about Bilbo Baggins, a reluctant hero who joins dwarves on a dangerous quest to reclaim treasure.',
   ),
   Book(
     title: 'Atomic Habits',
@@ -2070,8 +2308,10 @@ const trendingBooks = [
     year: '2018',
     rating: 4.8,
     genre: 'Self-help',
-    imageUrl: 'https://tse2.mm.bing.net/th/id/OIP.8OBj3zwUeZAwpvWyoht2gQHaLL?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
-    description: 'A practical guide to building better habits through small, consistent changes.',
+    imageUrl:
+        'https://tse2.mm.bing.net/th/id/OIP.8OBj3zwUeZAwpvWyoht2gQHaLL?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
+    description:
+        'A practical guide to building better habits through small, consistent changes.',
   ),
   Book(
     title: 'Harry Potter',
@@ -2079,8 +2319,10 @@ const trendingBooks = [
     year: '1997',
     rating: 4.8,
     genre: 'Fantasy',
-    imageUrl: 'https://contentful.harrypotter.com/usf1vwtuqyxm/2DCs73x6P8seNobQ9zBSbO/1a5dfd6ed5fc0ed9545370470fc3d74c/English_Harry_Potter_1_Epub_9781781100219.jpg',
-    description: 'A young wizard discovers his identity and begins a magical journey at Hogwarts.',
+    imageUrl:
+        'https://contentful.harrypotter.com/usf1vwtuqyxm/2DCs73x6P8seNobQ9zBSbO/1a5dfd6ed5fc0ed9545370470fc3d74c/English_Harry_Potter_1_Epub_9781781100219.jpg',
+    description:
+        'A young wizard discovers his identity and begins a magical journey at Hogwarts.',
   ),
   Book(
     title: 'The Alchemist',
@@ -2088,8 +2330,10 @@ const trendingBooks = [
     year: '1988',
     rating: 4.6,
     genre: 'Fantasy',
-    imageUrl: 'https://tse1.mm.bing.net/th/id/OIP._Z09kGkAdrMKJsz-Zu4LJwHaKj?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
-    description: 'A philosophical adventure about following dreams and listening to the language of the world.',
+    imageUrl:
+        'https://tse1.mm.bing.net/th/id/OIP._Z09kGkAdrMKJsz-Zu4LJwHaKj?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
+    description:
+        'A philosophical adventure about following dreams and listening to the language of the world.',
   ),
   Book(
     title: 'The Midnight Library',
@@ -2097,8 +2341,10 @@ const trendingBooks = [
     year: '2020',
     rating: 4.6,
     genre: 'Romance',
-    imageUrl: 'https://tse1.mm.bing.net/th/id/OIP.MnRbJxKbLwqWRQhuBB2gOAHaLM?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
-    description: 'A reflective story about regret, choices, and discovering the value of life.',
+    imageUrl:
+        'https://tse1.mm.bing.net/th/id/OIP.MnRbJxKbLwqWRQhuBB2gOAHaLM?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
+    description:
+        'A reflective story about regret, choices, and discovering the value of life.',
   ),
   Book(
     title: 'Extinguish the Heat Runda Piąta',
@@ -2106,8 +2352,10 @@ const trendingBooks = [
     year: '2023',
     rating: 4.6,
     genre: 'Young Adult',
-    imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhE1E7j6ToW2FnweWDlHv_GyVhLAuxrz9_gg&s',
-    description: 'A young adult romance with intense emotions, conflict, and complicated relationships.',
+    imageUrl:
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhE1E7j6ToW2FnweWDlHv_GyVhLAuxrz9_gg&s',
+    description:
+        'A young adult romance with intense emotions, conflict, and complicated relationships.',
   ),
   Book(
     title: 'MR Mercedes',
@@ -2115,8 +2363,10 @@ const trendingBooks = [
     year: '2014',
     rating: 4.7,
     genre: 'Thriller',
-    imageUrl: 'https://tse2.mm.bing.net/th/id/OIP.ExW4bO7MheuFLwlZFSXalQHaLQ?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
-    description: 'A retired detective hunts a killer in a dark and tense crime thriller.',
+    imageUrl:
+        'https://tse2.mm.bing.net/th/id/OIP.ExW4bO7MheuFLwlZFSXalQHaLQ?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
+    description:
+        'A retired detective hunts a killer in a dark and tense crime thriller.',
   ),
   Book(
     title: 'Romeo and Juliet',
@@ -2124,8 +2374,10 @@ const trendingBooks = [
     year: '1590',
     rating: 4.8,
     genre: 'Romance',
-    imageUrl: 'https://tse4.mm.bing.net/th/id/OIP.Xc1XYL63RDJqa_hDW50DFAHaLL?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
-    description: 'A tragic romance about two lovers divided by family conflict.',
+    imageUrl:
+        'https://tse4.mm.bing.net/th/id/OIP.Xc1XYL63RDJqa_hDW50DFAHaLL?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
+    description:
+        'A tragic romance about two lovers divided by family conflict.',
   ),
   Book(
     title: 'Keeping 13',
@@ -2134,7 +2386,8 @@ const trendingBooks = [
     rating: 4.6,
     genre: 'Young Adult',
     imageUrl: 'https://m.media-amazon.com/images/I/81O-cSGFB5L._SL1500_.jpg',
-    description: 'A heartfelt young adult romance about loyalty, healing, and growing up.',
+    description:
+        'A heartfelt young adult romance about loyalty, healing, and growing up.',
   ),
   Book(
     title: 'A Court of Thorns and Roses',
@@ -2142,8 +2395,10 @@ const trendingBooks = [
     year: '2015',
     rating: 4.9,
     genre: 'Fantasy',
-    imageUrl: 'https://tse2.mm.bing.net/th/id/OIP.ZITZrfWzWGZKtDJ4luKVBwHaLZ?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
-    description: 'A fantasy romance involving fae courts, danger, magic, and transformation.',
+    imageUrl:
+        'https://tse2.mm.bing.net/th/id/OIP.ZITZrfWzWGZKtDJ4luKVBwHaLZ?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
+    description:
+        'A fantasy romance involving fae courts, danger, magic, and transformation.',
   ),
   Book(
     title: 'Fourth Wing',
@@ -2151,8 +2406,10 @@ const trendingBooks = [
     year: '2023',
     rating: 4.6,
     genre: 'Fantasy',
-    imageUrl: 'https://tse2.mm.bing.net/th/id/OIP.0RSIhedBzjgzcxErEWSwTgAAAA?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
-    description: 'A brutal dragon-riding academy where survival depends on strength, courage, and alliances.',
+    imageUrl:
+        'https://tse2.mm.bing.net/th/id/OIP.0RSIhedBzjgzcxErEWSwTgAAAA?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
+    description:
+        'A brutal dragon-riding academy where survival depends on strength, courage, and alliances.',
   ),
   Book(
     title: 'Behawiorysta',
@@ -2160,8 +2417,10 @@ const trendingBooks = [
     year: '2016',
     rating: 4.6,
     genre: 'Mystery',
-    imageUrl: 'https://tse4.mm.bing.net/th/id/OIP.3wBboGPJdqDU1DfKn44-dQHaLP?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
-    description: 'A Polish mystery thriller about manipulation, investigation, and psychological tension.',
+    imageUrl:
+        'https://tse4.mm.bing.net/th/id/OIP.3wBboGPJdqDU1DfKn44-dQHaLP?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
+    description:
+        'A Polish mystery thriller about manipulation, investigation, and psychological tension.',
   ),
   Book(
     title: 'Pride and Prejudice',
@@ -2170,7 +2429,8 @@ const trendingBooks = [
     rating: 4.5,
     genre: 'Romance',
     imageUrl: 'https://m.media-amazon.com/images/I/61dU08giPmL._SL1360_.jpg',
-    description: 'A classic romance of manners, pride, misunderstanding, and emotional growth.',
+    description:
+        'A classic romance of manners, pride, misunderstanding, and emotional growth.',
   ),
   Book(
     title: 'The Divine Comedy',
@@ -2178,7 +2438,8 @@ const trendingBooks = [
     year: '1308',
     rating: 4.8,
     genre: 'Classic',
-    imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNmE0kNDkvBKgsUMJq69A9h1T6lE-qRL24XA&s',
+    imageUrl:
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNmE0kNDkvBKgsUMJq69A9h1T6lE-qRL24XA&s',
     description: 'A poetic journey through Hell, Purgatory, and Paradise.',
   ),
   Book(
@@ -2187,8 +2448,10 @@ const trendingBooks = [
     year: '2026',
     rating: 3.98,
     genre: 'Mystery',
-    imageUrl: 'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1774686324i/238365535.jpg',
-    description: 'A mystery built around secrets, obsession, and the consequences of hidden pasts.',
+    imageUrl:
+        'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1774686324i/238365535.jpg',
+    description:
+        'A mystery built around secrets, obsession, and the consequences of hidden pasts.',
   ),
   Book(
     title: 'The Idiot',
@@ -2196,8 +2459,10 @@ const trendingBooks = [
     year: '1869',
     rating: 4.6,
     genre: 'Classic',
-    imageUrl: 'https://m.media-amazon.com/images/I/71f4AcK4YkL._AC_UF1000,1000_QL80_.jpg',
-    description: 'A psychological classic about innocence, morality, and society.',
+    imageUrl:
+        'https://m.media-amazon.com/images/I/71f4AcK4YkL._AC_UF1000,1000_QL80_.jpg',
+    description:
+        'A psychological classic about innocence, morality, and society.',
   ),
 ];
 
@@ -2208,8 +2473,10 @@ const highestRatedBooks = [
     year: '2014',
     rating: 4.76,
     genre: 'Fantasy',
-    imageUrl: 'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1728768241i/17332218.jpg',
-    description: 'An epic fantasy filled with war, magic, and complex characters fighting for survival and honor.',
+    imageUrl:
+        'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1728768241i/17332218.jpg',
+    description:
+        'An epic fantasy filled with war, magic, and complex characters fighting for survival and honor.',
   ),
   Book(
     title: '#2 Harry Potter and the Deathly Hallows',
@@ -2217,8 +2484,10 @@ const highestRatedBooks = [
     year: '2007',
     rating: 4.62,
     genre: 'Fantasy',
-    imageUrl: 'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1663805647i/136251.jpg',
-    description: 'The final battle between good and evil as Harry faces his destiny and the truth about his past.',
+    imageUrl:
+        'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1663805647i/136251.jpg',
+    description:
+        'The final battle between good and evil as Harry faces his destiny and the truth about his past.',
   ),
   Book(
     title: '#3 Fourth Wing',
@@ -2226,8 +2495,10 @@ const highestRatedBooks = [
     year: '2023',
     rating: 4.6,
     genre: 'Fantasy',
-    imageUrl: 'https://tse2.mm.bing.net/th/id/OIP.0RSIhedBzjgzcxErEWSwTgAAAA?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
-    description: 'A brutal dragon-riding academy where survival depends on strength, courage, and alliances.',
+    imageUrl:
+        'https://tse2.mm.bing.net/th/id/OIP.0RSIhedBzjgzcxErEWSwTgAAAA?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
+    description:
+        'A brutal dragon-riding academy where survival depends on strength, courage, and alliances.',
   ),
   Book(
     title: '#4 Crooked Kingdom (Six of Crows, #2)',
@@ -2235,8 +2506,10 @@ const highestRatedBooks = [
     year: '2016',
     rating: 4.58,
     genre: 'Fantasy',
-    imageUrl: 'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1456172607i/22299763.jpg',
-    description: 'A high-stakes heist story where loyalty, revenge, and strategy collide in a dangerous world.',
+    imageUrl:
+        'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1456172607i/22299763.jpg',
+    description:
+        'A high-stakes heist story where loyalty, revenge, and strategy collide in a dangerous world.',
   ),
   Book(
     title: '#5 A Court of Mist and Fury (A Court of Thorns and Roses, #2)',
@@ -2244,8 +2517,10 @@ const highestRatedBooks = [
     year: '2016',
     rating: 4.71,
     genre: 'Fantasy',
-    imageUrl: 'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1620325671i/50659468.jpg',
-    description: 'A darker and emotional continuation of a fantasy romance filled with power, trauma, and transformation.',
+    imageUrl:
+        'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1620325671i/50659468.jpg',
+    description:
+        'A darker and emotional continuation of a fantasy romance filled with power, trauma, and transformation.',
   ),
   Book(
     title: '#6 The Return of the King',
@@ -2253,8 +2528,10 @@ const highestRatedBooks = [
     year: '1955',
     rating: 4.58,
     genre: 'Fantasy',
-    imageUrl: 'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1654216226i/61215384.jpg',
-    description: 'The epic conclusion of a legendary journey where the fate of Middle-earth is decided.',
+    imageUrl:
+        'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1654216226i/61215384.jpg',
+    description:
+        'The epic conclusion of a legendary journey where the fate of Middle-earth is decided.',
   ),
   Book(
     title: '#7 The House of Hades',
@@ -2262,8 +2539,10 @@ const highestRatedBooks = [
     year: '2013',
     rating: 4.64,
     genre: 'Fantasy',
-    imageUrl: 'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1464201430i/12127810.jpg',
-    description: 'Heroes face their greatest challenges in a mythological world where survival is never guaranteed.',
+    imageUrl:
+        'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1464201430i/12127810.jpg',
+    description:
+        'Heroes face their greatest challenges in a mythological world where survival is never guaranteed.',
   ),
   Book(
     title: '#8 Kingdom of Ash',
@@ -2271,8 +2550,10 @@ const highestRatedBooks = [
     year: '2018',
     rating: 4.71,
     genre: 'Fantasy',
-    imageUrl: 'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1673567331i/76715522.jpg',
-    description: 'An epic finale of sacrifice, war, and destiny in a richly built fantasy universe.',
+    imageUrl:
+        'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1673567331i/76715522.jpg',
+    description:
+        'An epic finale of sacrifice, war, and destiny in a richly built fantasy universe.',
   ),
   Book(
     title: '#9 The Nightingale',
@@ -2280,8 +2561,10 @@ const highestRatedBooks = [
     year: '2015',
     rating: 4.65,
     genre: 'Thriller',
-    imageUrl: 'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1681839850i/21853621.jpg',
-    description: 'A powerful story of two sisters in Nazi-occupied France, courage, sacrifice, and survival.',
+    imageUrl:
+        'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1681839850i/21853621.jpg',
+    description:
+        'A powerful story of two sisters in Nazi-occupied France, courage, sacrifice, and survival.',
   ),
   Book(
     title: '#10 Light Bringer',
@@ -2289,8 +2572,10 @@ const highestRatedBooks = [
     year: '2023',
     rating: 4.77,
     genre: 'Sci-Fi',
-    imageUrl: 'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1667655583i/29227774.jpg',
-    description: 'A gripping sci-fi story of rebellion, power, and the fight for freedom in a brutal society.',
+    imageUrl:
+        'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1667655583i/29227774.jpg',
+    description:
+        'A gripping sci-fi story of rebellion, power, and the fight for freedom in a brutal society.',
   ),
 ];
 
@@ -2301,8 +2586,10 @@ const newBooks = [
     year: '2026',
     rating: 3.98,
     genre: 'Thriller',
-    imageUrl: 'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1774686324i/238365535.jpg',
-    description: 'A mystery built around secrets, obsession, and the consequences of hidden pasts.',
+    imageUrl:
+        'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1774686324i/238365535.jpg',
+    description:
+        'A mystery built around secrets, obsession, and the consequences of hidden pasts.',
   ),
   Book(
     title: 'My Husband\'s Wife',
@@ -2310,8 +2597,10 @@ const newBooks = [
     year: '2026',
     rating: 3.98,
     genre: 'Thriller',
-    imageUrl: 'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1747668611i/231127462.jpg',
-    description: 'A suspenseful story of marriage, deception, and dangerous truths.',
+    imageUrl:
+        'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1747668611i/231127462.jpg',
+    description:
+        'A suspenseful story of marriage, deception, and dangerous truths.',
   ),
   Book(
     title: 'The Night We Met (Say You\'ll Remember Me, #2)',
@@ -2319,8 +2608,10 @@ const newBooks = [
     year: '2026',
     rating: 4.09,
     genre: 'Romance',
-    imageUrl: 'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1755786976i/231801371.jpg',
-    description: 'A heartfelt romance about second chances, healing, and unforgettable connections.',
+    imageUrl:
+        'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1755786976i/231801371.jpg',
+    description:
+        'A heartfelt romance about second chances, healing, and unforgettable connections.',
   ),
   Book(
     title: 'Yesteryear',
@@ -2328,8 +2619,10 @@ const newBooks = [
     year: '2026',
     rating: 3.17,
     genre: 'Fantasy',
-    imageUrl: 'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1753932705i/238226942.jpg',
-    description: 'A nostalgic journey through memory, identity, and the choices that shape our lives.',
+    imageUrl:
+        'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1753932705i/238226942.jpg',
+    description:
+        'A nostalgic journey through memory, identity, and the choices that shape our lives.',
   ),
   Book(
     title: 'Half His Age',
@@ -2337,8 +2630,10 @@ const newBooks = [
     year: '2026',
     rating: 3.31,
     genre: 'Thriller',
-    imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVSsxzVntocdzDRfjD6aMLrQqyEUbv_yqpwQ&s',
-    description: 'A bold story exploring relationships, age differences, and expectations.',
+    imageUrl:
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVSsxzVntocdzDRfjD6aMLrQqyEUbv_yqpwQ&s',
+    description:
+        'A bold story exploring relationships, age differences, and expectations.',
   ),
   Book(
     title: 'Anatomy of an Alibi',
@@ -2346,8 +2641,10 @@ const newBooks = [
     year: '2026',
     rating: 3.82,
     genre: 'Thriller',
-    imageUrl: 'https://m.media-amazon.com/images/I/81xA2938-FL._AC_UF1000,1000_QL80_.jpg',
-    description: 'A fast-paced mystery where lies and manipulation blur the line between truth and deception.',
+    imageUrl:
+        'https://m.media-amazon.com/images/I/81xA2938-FL._AC_UF1000,1000_QL80_.jpg',
+    description:
+        'A fast-paced mystery where lies and manipulation blur the line between truth and deception.',
   ),
   Book(
     title: 'It\'s Not Her',
@@ -2355,8 +2652,10 @@ const newBooks = [
     year: '2026',
     rating: 3.98,
     genre: 'Thriller',
-    imageUrl: 'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1751999126i/230443142.jpg',
-    description: 'A tense psychological thriller about identity, trust, and a dangerous misunderstanding.',
+    imageUrl:
+        'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1751999126i/230443142.jpg',
+    description:
+        'A tense psychological thriller about identity, trust, and a dangerous misunderstanding.',
   ),
   Book(
     title: 'Woman Down',
@@ -2364,8 +2663,10 @@ const newBooks = [
     year: '2026',
     rating: 3.98,
     genre: 'Romance',
-    imageUrl: 'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1757522888i/241458703.jpg',
-    description: 'An emotional story about resilience, heartbreak, and finding strength after loss.',
+    imageUrl:
+        'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1757522888i/241458703.jpg',
+    description:
+        'An emotional story about resilience, heartbreak, and finding strength after loss.',
   ),
   Book(
     title: 'In Her Own League',
@@ -2373,8 +2674,10 @@ const newBooks = [
     year: '2026',
     rating: 4.37,
     genre: 'Romance',
-    imageUrl: 'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1763062347i/230926478.jpg',
-    description: 'A romance about ambition, independence, and proving your worth.',
+    imageUrl:
+        'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1763062347i/230926478.jpg',
+    description:
+        'A romance about ambition, independence, and proving your worth.',
   ),
   Book(
     title: 'This Story Might Save Your Life',
@@ -2382,7 +2685,9 @@ const newBooks = [
     year: '2026',
     rating: 3.99,
     genre: 'Thriller',
-    imageUrl: 'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1748929782i/231126887.jpg',
-    description: 'An uplifting story about self-discovery, healing, and finding purpose.',
+    imageUrl:
+        'https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1748929782i/231126887.jpg',
+    description:
+        'An uplifting story about self-discovery, healing, and finding purpose.',
   ),
 ];

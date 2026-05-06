@@ -57,6 +57,7 @@ Responsibilities:
 - reading list CRUD
 - rating/review data
 - database schema initialization for book-related tables
+- JWT verification via Auth Service (`GET /auth/verify`)
 
 Default URL:
 
@@ -114,6 +115,7 @@ Create `backend/.env` with values matching your local PostgreSQL setup:
 DATABASE_URL=postgresql://USER:PASSWORD@localhost:5432/DB_NAME
 SECRET_KEY=your-secret-key
 JWT_ALGORITHM=HS256
+AUTH_SERVICE_URL=http://127.0.0.1:8000
 ```
 
 `ALGORITHM` is also supported by the backend as a fallback name, but `JWT_ALGORITHM` is preferred.
@@ -166,6 +168,12 @@ FastAPI exposes Swagger documentation here:
 http://127.0.0.1:8000/docs
 http://127.0.0.1:8001/docs
 ```
+
+## Communication Diagram
+
+Architecture diagram is available here:
+
+- [docs/diagram.md](docs/diagram.md)
 
 ## Main API Areas
 

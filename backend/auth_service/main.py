@@ -3,8 +3,11 @@ from pathlib import Path
 from typing import Optional
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
@@ -40,6 +43,7 @@ if not SECRET_KEY or not ALGORITHM:
     raise RuntimeError("SECRET_KEY and JWT_ALGORITHM must be set")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+security = HTTPBearer()
 
 fake_db = {}
 
@@ -73,6 +77,20 @@ def ensure_schema():
 
 
 ensure_schema()
+
+
+@app.exception_handler(RequestValidationError)
+def validation_exception_handler(_, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": {
+                "code": "validation_error",
+                "message": "Validation failed",
+                "details": exc.errors(),
+            }
+        },
+    )
 
 
 @app.post("/auth/register")
@@ -125,6 +143,21 @@ def reset_password(request: ResetPasswordRequest):
         return {"message": "Password changed"}
     finally:
         db.close()
+
+
+@app.get("/auth/verify")
+def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+    except Exception:
+        api_error(401, "invalid_token", "Invalid token")
+
+    username = payload.get("sub")
+    if not username:
+        api_error(401, "invalid_token", "Invalid token")
+
+    return {"username": username}
+
 
 @app.get("/db-test")
 def db_test():
