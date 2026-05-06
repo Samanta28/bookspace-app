@@ -155,8 +155,8 @@ class BookReview {
 
 enum BookSection { home, toRead, myBooks, highest, newBooks, genre, login, signup, reset }
 
-const authApiBase = 'http://127.0.0.1:8000';
-const bookApiBase = 'http://127.0.0.1:8001';
+const authApiBase = 'http://127.0.0.1:5500';
+const bookApiBase = 'http://127.0.0.1:8000';
 
 class BookSpaceApp extends StatefulWidget {
   const BookSpaceApp({super.key});
@@ -430,7 +430,7 @@ class _BookSpaceHomeState extends State<BookSpaceHome> {
       }
       return data;
     } on html.ProgressEvent catch (_) {
-      throw Exception('Book Service is offline. Start backend on http://127.0.0.1:8001.');
+      throw Exception('Book Service is offline. Start backend on http://127.0.0.1:8000.');
     } on FormatException {
       throw Exception('Invalid server response');
     }
