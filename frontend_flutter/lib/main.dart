@@ -170,8 +170,8 @@ enum BookSection {
   reset
 }
 
-const authApiBase = 'http://127.0.0.1:8000';
-const bookApiBase = 'http://127.0.0.1:8001';
+const authApiBase = 'http://127.0.0.1:5500';
+const bookApiBase = 'http://127.0.0.1:8000';
 
 class BookSpaceApp extends StatefulWidget {
   const BookSpaceApp({super.key});
