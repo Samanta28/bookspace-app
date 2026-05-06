@@ -1,125 +1,222 @@
-# 📚 BookSpace
+# BookSpace
 
-BookSpace to backendowy system do zarządzania książkami, recenzjami oraz listą „do przeczytania”.
-Projekt został zbudowany w architekturze mikroserwisowej i umożliwia użytkownikom zarządzanie własną biblioteką książek oraz interakcję poprzez recenzje.
+BookSpace is a Flutter Web application with a FastAPI backend for managing books, reviews and reading lists. The project is built as a small microservice system with JWT authentication and a PostgreSQL database.
 
----
+The active frontend is `frontend_flutter`. The legacy `frontend/index.html` is not part of the current application.
 
-## Funkcjonalności
+## Features
 
-### Autoryzacja
+- user registration, login and logout
+- JWT-based authorization
+- password hashing with bcrypt
+- book catalog with genres
+- adding custom books with title, author, publication year, genre, description and cover image
+- cover image as a URL or uploaded image converted in the browser
+- editing and deleting books added by the current user
+- adding books to the To Read list
+- tracking reading progress with a slider
+- moving books from To Read to My Read Books
+- adding, editing and deleting the current user's reviews
+- star ratings based on user reviews
+- review count displayed next to every rating
+- dynamic Highest Rated ranking based on user reviews
+- New Books view based on books published in 2026
+- light and dark mode
+- local browser cache fallback when the Book Service is unavailable
 
-* rejestracja użytkownika
-* logowanie użytkownika
-* autoryzacja przy użyciu JWT
+## Architecture
 
-###  Zarządzanie książkami
+The project uses two backend services:
 
-* dodawanie książek
-* przeglądanie listy książek
-* edycja książek
-* usuwanie książek
-* wyświetlanie szczegółów książki
+### Auth Service
 
-### Recenzje
+Location: `backend/auth_service`
 
-* dodawanie recenzji i ocen
-* przeglądanie recenzji dla książki
-* edycja recenzji
-* usuwanie recenzji
+Responsibilities:
 
-### Lista „do przeczytania”
+- user registration
+- user login
+- password reset
+- JWT token generation
+- user table initialization
 
-* dodawanie książek do listy
-* przeglądanie listy użytkownika
-* usuwanie książek z listy
+Default URL:
 
----
-
-## Architektura
-
-Projekt składa się z dwóch mikroserwisów:
-
-* **Auth Service**
-  odpowiada za rejestrację, logowanie oraz generowanie tokenów JWT
-
-* **Book Service**
-  zarządza książkami, recenzjami oraz listą „do przeczytania”
-
-Komunikacja odbywa się przez REST API.
-
----
-
-## Technologie
-
-* Python
-* FastAPI
-* SQLAlchemy
-* SQLite *(z możliwością migracji do PostgreSQL)*
-* Git (workflow: feature → develop → main)
-
----
-
-## Bezpieczeństwo
-
-* hashowanie haseł
-* autoryzacja JWT
-* walidacja danych wejściowych
-* brak sekretów w repozytorium
-
----
-
-## API
-
-Dokumentacja API dostępna jest automatycznie po uruchomieniu aplikacji:
-
-```bash
-http://localhost:8000/docs
+```text
+http://127.0.0.1:8000
 ```
 
----
+### Book Service
 
-## Uruchomienie projektu
+Location: `backend/book_service`
 
-1. Sklonuj repozytorium:
+Responsibilities:
 
-```bash
-git clone https://github.com/Samanta28/bookspace-app.git
-cd bookspace-app
+- book CRUD
+- review CRUD
+- reading list CRUD
+- rating/review data
+- database schema initialization for book-related tables
+- JWT verification via Auth Service (`GET /auth/verify`)
+
+Default URL:
+
+```text
+http://127.0.0.1:8001
 ```
 
-2. Zainstaluj zależności:
+## Technology Stack
 
-```bash
-pip install -r requirements.txt
+Backend:
+
+- Python
+- FastAPI
+- SQLAlchemy
+- PostgreSQL
+- python-jose for JWT
+- passlib with bcrypt
+- python-dotenv
+- Uvicorn
+
+Frontend:
+
+- Flutter Web
+- Dart
+- Material 3
+- browser `localStorage` for local UI state/cache
+
+## Project Structure
+
+```text
+bookspace-app/
+  backend/
+    .env
+    requirements.txt
+    auth_service/
+      main.py
+      database.py
+      models.py
+    book_service/
+      main.py
+      database.py
+      models.py
+  frontend_flutter/
+    lib/main.dart
+    pubspec.yaml
+    web/index.html
+  README.md
 ```
 
-3. Uruchom serwer:
+## Environment
 
-```bash
-uvicorn main:app --reload
+Create `backend/.env` with values matching your local PostgreSQL setup:
+
+```env
+DATABASE_URL=postgresql://USER:PASSWORD@localhost:5432/DB_NAME
+SECRET_KEY=your-secret-key
+JWT_ALGORITHM=HS256
+AUTH_SERVICE_URL=http://127.0.0.1:8000
 ```
 
----
+`ALGORITHM` is also supported by the backend as a fallback name, but `JWT_ALGORITHM` is preferred.
+
+## Installation
+
+Install backend dependencies:
+
+```bash
+pip install -r backend/requirements.txt
+```
+
+Install Flutter dependencies:
+
+```bash
+cd frontend_flutter
+flutter pub get
+```
+
+## Running Locally
+
+Start Auth Service:
+
+```bash
+cd backend/auth_service
+python -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Start Book Service in a second terminal:
+
+```bash
+cd backend/book_service
+python -m uvicorn main:app --host 127.0.0.1 --port 8001 --reload
+```
+
+Start Flutter Web in a third terminal:
+
+```bash
+cd frontend_flutter
+flutter run -d chrome
+```
+
+If Flutter reports that hot reload cannot apply class shape changes, perform a hot restart or stop and run the app again.
+
+## API Documentation
+
+FastAPI exposes Swagger documentation here:
+
+```text
+http://127.0.0.1:8000/docs
+http://127.0.0.1:8001/docs
+```
+
+## Communication Diagram
+
+Architecture diagram is available here:
+
+- [docs/diagram.md](docs/diagram.md)
+
+## Main API Areas
+
+Auth Service:
+
+- `POST /auth/register`
+- `POST /auth/login`
+- `POST /auth/reset-password`
+
+Book Service:
+
+- `GET /books`
+- `GET /books/{id}`
+- `POST /books`
+- `PUT /books/{id}`
+- `DELETE /books/{id}`
+- `GET /reviews`
+- `GET /reviews/book/{id}`
+- `POST /reviews`
+- `PUT /reviews/{id}`
+- `DELETE /reviews/{id}`
+- `GET /reading-list`
+- `POST /reading-list`
+- `PUT /reading-list/{id}`
+- `DELETE /reading-list/{id}`
+
+Protected endpoints require:
+
+```text
+Authorization: Bearer <JWT_TOKEN>
+```
 
 ## Git Workflow
 
-Projekt był rozwijany zgodnie z zasadami:
+The project workflow is:
 
-* brak bezpośrednich pushy do `main`
-* każda zmiana przez Pull Request
-* struktura branchy:
+```text
+feature -> develop -> main
+```
 
-  * `main`
-  * `develop`
-  * `feature/*`
+Direct pushes to `main` are avoided. Changes should be merged through Pull Requests.
 
----
+## Status
 
+The MVP is complete and includes authentication, book management, reviews, reading list handling and the Flutter Web interface.
 
-
----
-
-## Autor
-
-Simona Bazhenava
